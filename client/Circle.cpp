@@ -46,10 +46,8 @@ Bomb::Bomb(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
 	setFillColor(sf::Color::Yellow);//?????????????????
 }
 
-
-
 //====================================================================================
-//===========================      CONSTRACTORS      =================================
+//===========================        FUNCTION        =================================
 //====================================================================================
 void Player::newRadius(const Circle *c)
 {
@@ -62,59 +60,14 @@ void Player::move(float x, float y)
 	setCenter(getPosition() + Vector2f{ getRadius(), getRadius() });
 }
 //-----------------------------------------------------
-//bool Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> players)
-//{
-//	checkFoodAndBomb(deleted, objectsOnBoard);
-//	return checkPlayers(players);
-//}
-////------------------------------------------------------
-//void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard)
-//{
-//	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(),getRadius());
-//
-//	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
-//		if (distance(getCenter(), objectsOnBoard[it]->getCenter()) <= getRadius() + objectsOnBoard[it]->getRadius())
-//		{
-//			std::cout << "my position: " << getPosition().x << " " <<getPosition().y <<
-//				" my center: " << getCenter().x << " " << getCenter().y <<
-//				"my radius: " << getRadius() << '\n' <<
-//				"him position: " << objectsOnBoard[it]->getPosition().x << " " << objectsOnBoard[it]->getPosition().y <<
-//				" him center: " << objectsOnBoard[it]->getCenter().x << " " << objectsOnBoard[it]->getCenter().y <<
-//				"him radius: " << objectsOnBoard[it]->getRadius() << '\n';
-//			deleted.push_back(it);
-//			newRadius(objectsOnBoard[it].get());
-//			objectsOnBoard.eraseFromData(it);
-//		}
-//}
-////---------------------------------------------
-//bool Player::chec
-//kPlayers(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> players)
-//{
-//	std::vector<Uint32> del;
-//	for (auto &player : players)
-//		if (distance(getCenter(), player.second->getCenter()) <= getRadius() + player.second->getRadius())
-//			if (getRadius() > player.second->getRadius())
-//			{
-//				setScore(Uint32(player.second->getRadius()));
-//				newRadius(player.second.get());
-//				del.push_back(player.first);
-//			}
-//			else
-//				return false;
-//
-//	for (auto p : del)
-//		players.erase(p);
-//
-//	return true;
-//}
-//
-//
-//
-//
-
-
 float distance(const sf::Vector2f &p1, const sf::Vector2f &p2)
 {
-	float temp = std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2);
-	return std::sqrt(temp);
+	float temp = pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2);
+	return sqrt(temp);
 }
+//-----------------------------------------------------
+bool Player::circlesCollide(const Player* p) const
+{
+	return distance(getCenter(), p->getCenter()) <= getRadius() + p->getRadius();
+}
+
