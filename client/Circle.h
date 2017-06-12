@@ -3,11 +3,9 @@
 #include<SFML\Network.hpp>
 #include <memory>
 #include <set>
-//#include "Utilities.h"
 #include <iostream>
 #include <unordered_map>
 
-class Maps;
 
 #ifdef _DEBUG
 #pragma comment(lib, "sfml-main-d.lib")
@@ -25,6 +23,9 @@ class Maps;
 #error "Unrecognized configuration!"
 #endif
 
+class Maps;
+class OtherPlayers;
+
 const float FOOD_RADIUS = 10;
 const float BOMB_RADIUS = 30;
 const float NEW_PLAYER = 60;
@@ -33,33 +34,35 @@ using sf::Uint32;
 using sf::CircleShape;
 using sf::Vector2f;
 
-
 class Circle :public CircleShape
 {
 public:
 	Circle() = default;
-	Circle(Uint32 id) :m_id(id) {}
+	Circle(Uint32 id, Vector2f center = Vector2f{}) :m_id(id), m_center(center) {}
+	Circle(const Circle& c) :Circle(c.getId(), c.getCenter()) {}
 
-	Uint32 virtual getId() const { return m_id; }
-	Vector2f getCenter() const { return m_center; }
+	Uint32 getId() const { return m_id; }
+	const Vector2f& getCenter() const { return m_center; }
 	void setCenter(Vector2f center) { m_center = center; }
-	
+
+	void virtual f() = 0;
 
 protected:
 	Uint32 m_id;
 	Vector2f m_center;
-
 };
 //-------------------------------------
 class Player :public Circle
 {
 public:
 	Player() = default;
-	Player(Uint32 id) :Circle(id) {};
+	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0) :Circle(id, c) {}
+	Player(const Player& p) :Player(p.getId(), p.getCenter(), p.getScore()) {}
 
-	//bool collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> players);
-	//bool checkPlayers(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> );
-	//void checkFoodAndBomb(std::vector<Uint32> &, Maps &);
+	bool collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
+	bool checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
+	void checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard);
+	bool circlesCollide(const Player* p) const;
 
 	void newRadius(const Circle *c);
 	void move(float x, float y);
@@ -76,17 +79,20 @@ class MyPlayer :public Player
 public:
 	MyPlayer();
 	MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position = { 0.f,0.f });
-
+	MyPlayer(const MyPlayer& p) :Player(p) {}
+	
 	void setId(Uint32 id) { m_id = id; }
 	void setTexture(const sf::Texture &image) { CircleShape::setTexture(&image); }
-	//bool collision() const override { return true; }
-
+	void f() override {} 
 };
 //-------------------------------------
 class OtherPlayers :public Player
 {
 public:
+	OtherPlayers(const OtherPlayers& p) :Player(p) {}
 	OtherPlayers(Uint32 id, const sf::Texture &image, float radius, sf::Vector2f position);
+
+	void f() override {}
 };
 //-------------------------------------
 class FoodAndBomb :public Circle
@@ -101,6 +107,8 @@ class Food :public FoodAndBomb
 public:
 	Food(Uint32 id, sf::Vector2f place);
 	Food(std::pair<Uint32, sf::Vector2f> temp) :Food(temp.first, temp.second) {}
+
+	void f() override {}
 };
 //-------------------------------------
 class Bomb :public FoodAndBomb
@@ -108,4 +116,8 @@ class Bomb :public FoodAndBomb
 public:
 	Bomb(Uint32 id, sf::Vector2f place);
 	Bomb(std::pair<Uint32, sf::Vector2f> temp) :Bomb(temp.first, temp.second) {}
+
+	void f() override {}
 };
+//=============================================================================================
+float distance(const sf::Vector2f& p1, const sf::Vector2f& p2);
