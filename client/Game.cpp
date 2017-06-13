@@ -7,10 +7,10 @@
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, Uint32 image_id)
+Game::Game(const Images &images, Uint32 image_id,sf::View& view)
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(images[int(BACKGROUND)]),
-	m_view(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) })
+	m_view(view)
 {
 	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
 		//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
