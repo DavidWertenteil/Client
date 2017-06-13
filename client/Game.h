@@ -32,6 +32,6 @@ private:
 	//m_miniMap;
 	//Score m_score;
 	sf::TcpSocket m_socket;
-	//sf::View m_view{ sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) } };
+	sf::View& m_view; //
 };
 //--------------------------------------------------------------------------
