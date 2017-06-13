@@ -47,9 +47,9 @@ int main() {
 **********************************************************************************************/
 //===================== constructor ===================================
 Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
-	m_music.openFromFile("sounds/menu.ogg");
-	m_music.setLoop(true);
-	m_music.play();
+	//m_music.openFromFile("sounds/menu.ogg");
+	//m_music.setLoop(true);
+	//m_music.play();
 	makeScreen();
 }
 /************************************************************************

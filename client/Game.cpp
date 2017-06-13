@@ -2,8 +2,13 @@
 #include "Game.h"
 #include <iostream>
 #include <vector>
+#include <Windows.h>
 
-Game::Game(const Images &images, Uint32 image_id):
+//====================================================================================
+//================================ CONSTRUCTOR =======================================
+//====================================================================================
+Game::Game(const Images &images, Uint32 image_id) 
+	:m_me(std::make_unique<MyPlayer>()),
 	m_background(images[int(BACKGROUND)])
 {
 	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
@@ -25,9 +30,18 @@ void Game::receive(const Images &images)
 	Uint32 image;
 	float radius;
 
-	if (m_socket.receive(packet) == sf::TcpSocket::Done)
+	m_socket.setBlocking(true);//**********************************
+	Sleep(100);//*********************************
+
+	auto status = m_socket.receive(packet);
+	std::cout << "packet.getDataSize() " << packet.getDataSize() << '\n';
+
+	if (status == sf::TcpSocket::Done)
+	{
+		std::cout << "if\n";
 		while (!packet.endOfPacket())//קליטה של כל הדברים שעל הלוח
 		{
+			//std::cout << "while\n";
 			packet >> temp;
 
 			if (temp.first >= 1000 && temp.first <= 10000)
@@ -39,15 +53,21 @@ void Game::receive(const Images &images)
 				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], radius, temp.second));
 			}
 		}
+	}
+	else
+		std::cout << "lfasdf\n";
 
 	m_players.erase(temp.first); //הורדת העיגול שלי מהשחקנים האחרים
 
-	m_me.setId(temp.first);//עדכון העיגול שלי
-	m_me.setTexture(images[image]);
-	m_me.setPosition(temp.second);
-	m_me.setCenter(temp.second + Vector2f{ NEW_PLAYER,NEW_PLAYER });
+	m_me->setId(temp.first);//עדכון העיגול שלי
+	m_me->setTexture(images[image]);
+	m_me->setPosition(temp.second);
+	m_me->setCenter(temp.second + Vector2f{ NEW_PLAYER,NEW_PLAYER });
 }
-//--------------------------------------------------------------------------
+
+//====================================================================================
+//================================     PLAY     ======================================
+//====================================================================================
 unsigned Game::play(sf::RenderWindow &w, const Images &images)
 {
 	m_socket.setBlocking(false);
@@ -56,27 +76,26 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 	sf::Event event;
 	while (true)
 	{
-		//		bool canMove;
 		w.pollEvent(event);
 
 		//תזוזה של השחקן
 		if (event.type == sf::Event::EventType::KeyPressed)
 			if (!updateMove(event))
-				return m_me.getScore();
+				return m_me->getScore();
 
 		//קבלת מידע מהשרת
-		receiveChanges(event, images);
+		if (!receiveChanges(event, images))
+			return m_me->getScore();
 
-		w.draw(m_background);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			return m_me->getScore();
+
 		draw(w);
 	}
 
 
 	return 0;
 }
-
-
-
 
 //====================================================================================
 //===========================      UPDATE MOVE       =================================
@@ -85,126 +104,53 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 bool Game::updateMove(const sf::Event &event)
 {
 	sf::Packet packet;
+	packet.clear();
+	bool temp = true;
 
 	if (legalMove(event))
 	{
 		std::vector<Uint32> deleted;
-		//if (!m_me.collision(deleted, m_objectsOnBoard, m_players)) //אם מתתי
-			//return false;
-		if (!collision(deleted, m_me))
-			return false;
 
-		packet.clear();
-		packet << m_me.getId() << m_me.getRadius() << m_me.getPosition() << deleted;
-
+		temp = m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get());
+		packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
 	}
 
-	return true;
+	return temp;
 }
 //--------------------------------------------------------------------------
 bool Game::legalMove(const sf::Event &event)
 {
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		if (m_me.getCenter().y - m_me.getRadius() - MOVE < 0)
+		if (m_me->getCenter().y - m_me->getRadius() - MOVE < 0)
 			return false;
 		else
-			m_me.move(0, -MOVE);
+			m_me->move(0, -MOVE);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		if (m_me.getCenter().y + m_me.getRadius() + MOVE > BOARD_SIZE.y)
+		if (m_me->getCenter().y + m_me->getRadius() + MOVE > BOARD_SIZE.y)
 			return false;
 		else
-			m_me.move(0, MOVE);
+			m_me->move(0, MOVE);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		if (m_me.getCenter().x - m_me.getRadius() - MOVE < 0)
+		if (m_me->getCenter().x - m_me->getRadius() - MOVE < 0)
 			return false;
 		else
-			m_me.move(-MOVE, 0);
+			m_me->move(-MOVE, 0);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		if (m_me.getCenter().x + m_me.getRadius() + MOVE > BOARD_SIZE.x)
+		if (m_me->getCenter().x + m_me->getRadius() + MOVE > BOARD_SIZE.x)
 			return false;
 		else
-			m_me.move(MOVE, 0);
+			m_me->move(MOVE, 0);
 
 
 	return true;
 }
-
-
-
-//*************************************************************************************
-//*************************************************************************************
-//*************************************************************************************
-bool Game::collision(std::vector<Uint32> &deleted, Player &p)
-{
-	checkFoodAndBomb(deleted, p);
-	return checkPlayers(p);
-}
-//--------------------------------------------------------------------------
-void Game::checkFoodAndBomb(std::vector<Uint32> &deleted, Player &p)
-{
-	std::set<Uint32> check = m_objectsOnBoard.colliding(p.getCenter(), p.getRadius());
-
-	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
-		if (distance(p.getCenter(), m_objectsOnBoard[it]->getCenter()) <= p.getRadius() + m_objectsOnBoard[it]->getRadius())
-		{
-			std::cout << "my position: " << p.getPosition().x << " " << p.getPosition().y <<
-				" my center: " << p.getCenter().x << " " << p.getCenter().y <<
-				"my radius: " << p.getRadius() << '\n' <<
-				"him position: " << m_objectsOnBoard[it]->getPosition().x << " " << m_objectsOnBoard[it]->getPosition().y <<
-				" him center: " << m_objectsOnBoard[it]->getCenter().x << " " << m_objectsOnBoard[it]->getCenter().y <<
-				"him radius: " << m_objectsOnBoard[it]->getRadius() << '\n';
-			if (p.getId() == m_me.getId()) // תוסיף לוקטור המחיקה רק אם אני פגעתי בהם
-				deleted.push_back(it);
-			p.newRadius(m_objectsOnBoard[it].get());
-			m_objectsOnBoard.eraseFromData(it);
-		}
-
-}
-//--------------------------------------------------------------------------
-//מחזיר שקר אם השחקן מת
-bool Game::checkPlayers(Player &p)
-{
-	std::vector<Uint32> del;
-	for (auto &player : m_players)
-	{
-		if (player.second->getId() == p.getId())
-			continue;
-		if (distance(p.getCenter(), player.second->getCenter()) <= p.getRadius() + player.second->getRadius())
-			if (p.getRadius() > player.second->getRadius())
-			{
-				p.setScore(Uint32(player.second->getRadius()));
-				p.newRadius(player.second.get());
-				//m_players.erase(player.first);
-				del.push_back(player.first);
-			}
-			else
-				return false;
-	}
-
-	for (auto pl : del)
-		m_players.erase(pl);
-
-	return true;
-}
-//--------------------------------------------------------------------------
-float Game::distance(const sf::Vector2f &p1, const sf::Vector2f &p2)
-//float distance(const sf::Vector2f &p1, const sf::Vector2f &p2)
-{
-	float temp = std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2);
-	return std::sqrt(temp);
-}
-//*************************************************************************************
-//*************************************************************************************
-//*************************************************************************************
-//*************************************************************************************
-
 
 //====================================================================================
 //===========================      RECEIVE DATA      =================================
@@ -220,28 +166,25 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 		std::pair<Uint32, sf::Vector2f> temp;
 		packet >> temp;
 		std::vector<Uint32> del;
-		Uint32 player_delete = 1;
 
 		if (temp.first >= 1000 && temp.first <= 10000) // אוכל או פצצות חדשות
 			m_objectsOnBoard.insert(temp);
 
 		else if (temp.first >= 200 && temp.first <= 300)// שחקן
 		{
-			if (temp.first == m_me.getId())// השחקן שלי
+			if (temp.first == m_me->getId())// השחקן שלי
 				continue;
 			if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
 			{
 				m_players[temp.first]->setPosition(temp.second);
 				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
-				if (!collision(del, *m_players[temp.first].get()))
-					m_players.erase(temp.first);
+				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
+					return false; //אם השחקן הרג אותי
 			}
 			else // שחקן חדש
 			{
 				Uint32 image;
 				packet >> image;
-				image %= 11;//************************************************************
-				image++;//*************************************************************
 				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));
 			}
 		}
@@ -249,7 +192,6 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 
 	return true;
 }
-
 
 //====================================================================================
 //===========================          PRINT         =================================
@@ -260,17 +202,17 @@ void Game::setView(sf::RenderWindow &w) const
 	view.reset(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
 	sf::Vector2f pos{ float(SCREEN_WIDTH) / 2 , float(SCREEN_HEIGHT) / 2 };
 
-	if (m_me.getCenter().x > SCREEN_WIDTH / 2)
-		if (BOARD_SIZE.x - m_me.getCenter().x < SCREEN_WIDTH / 2)
+	if (m_me->getCenter().x > SCREEN_WIDTH / 2)
+		if (BOARD_SIZE.x - m_me->getCenter().x < SCREEN_WIDTH / 2)
 			pos.x = BOARD_SIZE.x - SCREEN_WIDTH / 2;
 		else
-			pos.x = m_me.getCenter().x;
+			pos.x = m_me->getCenter().x;
 
-	if (m_me.getCenter().y > SCREEN_HEIGHT / 2)
-		if (BOARD_SIZE.y - m_me.getCenter().y < SCREEN_HEIGHT / 2)
+	if (m_me->getCenter().y > SCREEN_HEIGHT / 2)
+		if (BOARD_SIZE.y - m_me->getCenter().y < SCREEN_HEIGHT / 2)
 			pos.y = BOARD_SIZE.y - SCREEN_HEIGHT / 2;
 		else
-			pos.y = m_me.getCenter().y;
+			pos.y = m_me->getCenter().y;
 
 	view.setCenter(pos);
 	w.setView(view);
@@ -284,12 +226,74 @@ void Game::draw(sf::RenderWindow &w) const
 
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
+
 	for (auto &x : m_players)
 		w.draw(*x.second.get());
-	w.draw(m_me);
+
+	w.draw(*m_me.get());
 
 	w.display();
 
 }
 
 
+//*************************************************************************************
+//****************************    PLAYER FUNCTION   ***********************************
+//*************************************************************************************
+// מחזיר שקר אם מתתי
+bool Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
+{
+	checkFoodAndBomb(deleted, objectsOnBoard);
+	return checkPlayers(deleted, players, me);
+}
+//--------------------------------------------------------------------------
+bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
+{
+	bool temp = true;
+	std::vector<Uint32> del;
+	for (auto &player : players)
+	{
+		if (player.second->getId() == getId())
+			continue;
+		if (circlesCollide(player.second.get()))
+			if (getRadius() > player.second->getRadius()) //אם היתה התנגשות בין שניים אחרים והאחר מת
+			{
+				setScore(Uint32(player.second->getRadius()));
+				newRadius(player.second.get());
+				del.push_back(player.first);
+				deleted.push_back(player.first);
+			}
+			else
+				temp = (getId() == me->getId()) ? false : true; //אם הנוכחי מת (לא השחקן שלי, השחקן הנבדק)י
+	}
+
+	if (getId() != me->getId()) //בדיקה של שחקן נוכחי מול השחקן שלי
+	{
+		if (circlesCollide (me))
+			if (getRadius() > me->getRadius())
+				temp = false;
+			else
+			{
+				del.push_back(getId());
+				me->setScore(Uint32(getRadius()));
+				me->newRadius(this);
+			}
+	}
+
+	for (auto pl : del)
+		players.erase(pl);
+
+	return temp;
+}
+//--------------------------------------------------------------------------
+void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard)
+{
+	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
+
+	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
+		if (distance(getCenter(), objectsOnBoard[it]->getCenter()) <= getRadius() + objectsOnBoard[it]->getRadius())
+		{
+			newRadius(objectsOnBoard[it].get());
+			objectsOnBoard.eraseFromData(it);
+		}
+}
