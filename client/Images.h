@@ -6,6 +6,7 @@
 
 enum Images_t
 {
+	BACKGROUND,
 	BACKGROUND1,
 	SPRITE_NUMBER, //number of images, add an image befor this line 
 	color1 = 1,
@@ -41,7 +42,7 @@ public:
 	const sf::Sprite& operator[](int i)const { return m_image[i]; }
 	sf::Sprite& operator[](int i) { return m_image[i]; }
 	const sf::Texture& operator[](sf::Uint32 i) const { return m_picTexture[i]; } //????????????
-	//const sf::Texture& operator[](sf::Uint32 i) const { return m_cirTexture[i]; }
+																				  //const sf::Texture& operator[](sf::Uint32 i) const { return m_cirTexture[i]; }
 
 
 private:

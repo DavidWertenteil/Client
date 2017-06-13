@@ -3,7 +3,8 @@
 #include <iostream>
 #include <vector>
 
-Game::Game(const Images &images, Uint32 image_id)
+Game::Game(const Images &images, Uint32 image_id):
+	m_background(images[int(BACKGROUND)])
 {
 	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
 		//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
@@ -66,6 +67,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 		//קבלת מידע מהשרת
 		receiveChanges(event, images);
 
+		w.draw(m_background);
 		draw(w);
 	}
 
