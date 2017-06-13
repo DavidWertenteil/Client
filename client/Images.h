@@ -6,6 +6,7 @@
 
 enum Images_t
 {
+	BACKGROUND,
 	BACKGROUND1,
 	SPRITE_NUMBER, //number of images, add an image befor this line 
 	color1 = 1,
@@ -36,7 +37,7 @@ public:
 	/* set */
 	void setPosition(const int i, const sf::Vector2f& position) { m_image[i].setPosition(position); }
 	void setScale(const int i, const sf::Vector2f& scale) { m_image[i].setScale(scale); }
-
+	//const sf::Sprite& getBackground()const{return m_}
 	//operator
 	const sf::Sprite& operator[](int i)const { return m_image[i]; }
 	sf::Sprite& operator[](int i) { return m_image[i]; }

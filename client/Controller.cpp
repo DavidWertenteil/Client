@@ -41,49 +41,6 @@ int main() {
 
 	return 0;
 
-	/*sf::RenderWindow w{ sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" };
-	MyPlayer f;
-	f.setPosition({0,0});
-	f.setCenter( Vector2f{ NEW_PLAYER,NEW_PLAYER });
-
-	w.clear();
-	w.draw(f);
-	w.display();
-
-	std::cout << "food position: " << f.getPosition().x << " " << f.getPosition().y << '\n'
-		<< "food center: " << f.getCenter().x << " " << f.getCenter().y << '\n';
-
-	int x;
-	std::cin >> x;*/
-
-	/*CircleShape c{ 100 };
-	sf::RenderWindow w{ sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" };
-
-	w.clear();
-	w.draw(c);
-	w.display();
-
-	int x;
-	std::cin >> x;
-
-	c.setOrigin({ 100, 100 });
-	w.clear();
-	w.draw(c);
-	w.display();
-	std::cin >> x;
-
-	std::cout << c.getPosition().x << " " << c.getPosition().y << '\n';
-
-	c.setPosition({ 100, 100 });
-	w.clear();
-	w.draw(c);
-	w.display();
-	std::cout << c.getPosition().x << " " << c.getPosition().y << '\n';
-
-	std::cin >> x;
-
-	return 0;*/
-
 }
 /*****************************************************************************************
 				basic Controller functions
