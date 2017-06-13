@@ -7,9 +7,10 @@
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, Uint32 image_id) 
+Game::Game(const Images &images, Uint32 image_id)
 	:m_me(std::make_unique<MyPlayer>()),
-	m_background(images[int(BACKGROUND)])
+	m_background(images[int(BACKGROUND)]),
+	m_view(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) })
 {
 	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
 		//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
@@ -210,8 +211,8 @@ void Game::setView(sf::RenderWindow &w) const
 		else
 			pos.y = m_me->getCenter().y;
 
-	view.setCenter(pos);
-	w.setView(view);
+	m_view.setCenter(pos);
+	w.setView(m_view);
 }
 //--------------------------------------------------------------------------
 void Game::draw(sf::RenderWindow &w) const
@@ -266,7 +267,7 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 
 	if (getId() != me->getId()) //בדיקה של שחקן נוכחי מול השחקן שלי
 	{
-		if (circlesCollide (me))
+		if (circlesCollide(me))
 			if (getRadius() > me->getRadius())
 				temp = false;
 			else
