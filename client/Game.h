@@ -5,7 +5,7 @@
 #include <map>
 #include <unordered_map>
 
-const float MOVE = 2;
+const float MOVE = 400;
 const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 
 
@@ -20,8 +20,8 @@ public:
 	void setView(sf::RenderWindow &w) const;
 
 private:
-	bool updateMove(const sf::Event &event);
-	bool legalMove(const sf::Event &event);
+	bool updateMove(float);
+	bool legalMove(float);
 	bool receiveChanges(const sf::Event &event, const Images &images);
 
 	//===========================
