@@ -62,7 +62,7 @@ public:
 	bool collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	bool checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	void checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard);
-	bool circlesCollide(const Player* p) const;
+	bool circlesCollide(const Circle* p) const;
 
 	void newRadius(const Circle *c);
 	void move(float x, float y);

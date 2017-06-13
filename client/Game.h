@@ -12,7 +12,7 @@ const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 class Game
 {
 public:
-	Game(const Images &images, Uint32 image);
+	Game(const Images &images, Uint32 image,sf::View&);
 	void receive(const Images &images);
 	unsigned play(sf::RenderWindow &w, const Images &images);
 	

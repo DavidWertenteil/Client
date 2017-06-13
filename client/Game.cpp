@@ -3,17 +3,17 @@
 #include <iostream>
 #include <vector>
 #include <Windows.h>
-
+const auto f() { return sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) }; }
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, Uint32 image_id)
+Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(images[int(BACKGROUND)]),
-	m_view(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) })
+	m_view(view)
 {
-	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-		//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
+	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+		if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
@@ -177,6 +177,14 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
 				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
 					return false; //אם השחקן הרג אותי
+				for (auto x:del) //אם השחקן התאבד
+					if (x == temp.first)
+					{
+						sf::Packet pack;
+						pack << std::vector<Uint32>{temp.first};
+						m_socket.send(pack);
+						break;
+					}
 			}
 			else // שחקן חדש
 			{
@@ -258,8 +266,8 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 			{
 				setScore(Uint32(player.second->getRadius()));
 				newRadius(player.second.get());
-				del.push_back(player.first);
-				deleted.push_back(player.first);
+				del.push_back(player.first); // מחיקה אצלי
+				deleted.push_back(player.first); // מחיקה אצל השרת
 			}
 			else
 				temp = (getId() == me->getId()) ? false : true; //אם הנוכחי מת (לא השחקן שלי, השחקן הנבדק)י
@@ -272,9 +280,10 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				temp = false;
 			else
 			{
-				del.push_back(getId());
+				del.push_back(getId()); //מחיקה אצלי
 				me->setScore(Uint32(getRadius()));
 				me->newRadius(this);
+				deleted.push_back(getId()); // מחיקה אצל השרת
 			}
 	}
 
@@ -289,9 +298,11 @@ void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard
 	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
 
 	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
-		if (distance(getCenter(), objectsOnBoard[it]->getCenter()) <= getRadius() + objectsOnBoard[it]->getRadius())
+		//if (distance(getCenter(), objectsOnBoard[it]->getCenter()) <= getRadius() + objectsOnBoard[it]->getRadius())
+		if (circlesCollide(objectsOnBoard[it].get()))
 		{
 			newRadius(objectsOnBoard[it].get());
 			objectsOnBoard.eraseFromData(it);
+			deleted.push_back(it);
 		}
 }
