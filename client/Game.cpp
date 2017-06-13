@@ -13,7 +13,7 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	m_view(view)
 {
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-		if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
@@ -110,10 +110,14 @@ bool Game::updateMove(float speed)
 		std::vector<Uint32> deleted;
 
 		temp = m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get());
+		if (!temp)
+			deleted.push_back(m_me->getId()); // אם מתתי
 		packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
+		//if (!temp)
+			//Sleep(2000);
 	}
 
 	return temp;
@@ -177,14 +181,14 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
 				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
 					return false; //אם השחקן הרג אותי
-				for (auto x:del) //אם השחקן התאבד
-					if (x == temp.first)
-					{
-						sf::Packet pack;
-						pack << std::vector<Uint32>{temp.first};
-						m_socket.send(pack);
-						break;
-					}
+				//for (auto x:del) //אם השחקן התאבד
+				//	if (x == temp.first)
+				//	{
+				//		sf::Packet pack;
+				//		pack << std::vector<Uint32>{temp.first};
+				//		m_socket.send(pack);
+				//		break;
+				//	}
 			}
 			else // שחקן חדש
 			{
@@ -283,7 +287,7 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				del.push_back(getId()); //מחיקה אצלי
 				me->setScore(Uint32(getRadius()));
 				me->newRadius(this);
-				deleted.push_back(getId()); // מחיקה אצל השרת
+				//deleted.push_back(getId()); // מחיקה אצל השרת
 			}
 	}
 
