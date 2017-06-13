@@ -36,8 +36,27 @@ private:
 	std::multimap<float, Uint32> m_x;
 	std::multimap<float, Uint32> m_y;
 };
+//==========================================================================
+//================================= Time ===================================
+//==========================================================================
+/*
+		singleton class for managing time to move the player
 
+******************************************************************************/
+class TimeClass
+{
+public:
+	inline static TimeClass& instance() { static TimeClass tone; return tone; }
+	~TimeClass() {}
 
+	inline float RestartClock() { return m_clock.restart().asSeconds(); }
+private:
+	TimeClass() = default;
+	TimeClass(const TimeClass&) = delete;
+	TimeClass& operator=(const TimeClass&) = delete;
+
+	sf::Clock m_clock;
+};
 
 //==========================================================================
 //================================PACKET====================================

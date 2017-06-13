@@ -7,7 +7,7 @@ Images::Images() {
 	for (int i = 0; i < Images_t::SPRITE_NUMBER; i++)
 		m_image.push_back(sf::Sprite{ m_picTexture[i] });
 
-	m_image[BACKGROUND].setTextureRect(sf::IntRect{ 0,0,3000,3000 } );
+	m_image[BACKGROUND].setTextureRect(sf::IntRect{ 0,0,3000,3000 });
 	m_picTexture[BACKGROUND].setRepeated(true);
 
 	//set menu background repeat
@@ -16,7 +16,7 @@ Images::Images() {
 }
 //================================================================
 void Images::startImages() {
-	m_picTexture[BACKGROUND].loadFromFile("Images/Background.jpg");
+	m_picTexture[BACKGROUND].loadFromFile("Images/background.jpg");
 	m_picTexture[BACKGROUND1].loadFromFile("Images/Background1.jpg");
 
 	m_cirTexture[color1].loadFromFile("Images/color1.png");

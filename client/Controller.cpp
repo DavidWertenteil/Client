@@ -58,7 +58,7 @@ Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io");// , sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" , sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -94,14 +94,14 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 //if user pressed "Start"
 void Controller::play(sf::RenderWindow& window) {
 	auto it = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get());
-	std::cout << it->getSelectedImage() << '\n';
 	Game game{ m_images,/* m_fonts,*/it->getSelectedImage() + 2 /*,it->getName() */ };
 	auto score = game.play(window, m_images); //run current level
 
    //when the level is over resize the window to half screen
 	/*display score screen*/
    //endLevelScreen(window, score);
-
+	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
+	window.setView(view);
 	//sets the start boolean to be false
 	m_Menus[START_GAME]->setPressed(false);
 

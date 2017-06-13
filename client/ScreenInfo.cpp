@@ -25,7 +25,7 @@ Logo::Logo(const sf::Font& font) : sf::Text::Text("Agar.io", font, LOGO_SIZE) {
 //									constructor
 //===============================================================================================================
 SettingsScreen::SettingsScreen(const sf::Font& font, const Images& image) {
-	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-1);
+	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-2);
 
 	setNameBox();
 	setTextInNameBox(font);
