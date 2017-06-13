@@ -41,49 +41,6 @@ int main() {
 
 	return 0;
 
-	/*sf::RenderWindow w{ sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" };
-	MyPlayer f;
-	f.setPosition({0,0});
-	f.setCenter( Vector2f{ NEW_PLAYER,NEW_PLAYER });
-
-	w.clear();
-	w.draw(f);
-	w.display();
-
-	std::cout << "food position: " << f.getPosition().x << " " << f.getPosition().y << '\n'
-		<< "food center: " << f.getCenter().x << " " << f.getCenter().y << '\n';
-
-	int x;
-	std::cin >> x;*/
-
-	/*CircleShape c{ 100 };
-	sf::RenderWindow w{ sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" };
-
-	w.clear();
-	w.draw(c);
-	w.display();
-
-	int x;
-	std::cin >> x;
-
-	c.setOrigin({ 100, 100 });
-	w.clear();
-	w.draw(c);
-	w.display();
-	std::cin >> x;
-
-	std::cout << c.getPosition().x << " " << c.getPosition().y << '\n';
-
-	c.setPosition({ 100, 100 });
-	w.clear();
-	w.draw(c);
-	w.display();
-	std::cout << c.getPosition().x << " " << c.getPosition().y << '\n';
-
-	std::cin >> x;
-
-	return 0;*/
-
 }
 /*****************************************************************************************
 				basic Controller functions
@@ -101,7 +58,7 @@ Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io");// , sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" , sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -137,14 +94,14 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 //if user pressed "Start"
 void Controller::play(sf::RenderWindow& window) {
 	auto it = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get());
-	std::cout << it->getSelectedImage() << '\n';
 	Game game{ m_images,/* m_fonts,*/it->getSelectedImage() + 2 /*,it->getName() */ };
 	auto score = game.play(window, m_images); //run current level
 
    //when the level is over resize the window to half screen
 	/*display score screen*/
    //endLevelScreen(window, score);
-
+	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
+	window.setView(view);
 	//sets the start boolean to be false
 	m_Menus[START_GAME]->setPressed(false);
 

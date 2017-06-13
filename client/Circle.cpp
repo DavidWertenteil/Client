@@ -35,7 +35,10 @@ Food::Food(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
 	setRadius(FOOD_RADIUS);
 	setCenter(position);
 	setOrigin(FOOD_RADIUS, FOOD_RADIUS);
-	setFillColor(sf::Color::Cyan);//?????????????????
+//	setFillColor(sf::Color::Yellow);//?????????????????
+	setFillColor(sf::Color(rand()%155+150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
+	setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b,100) );
+	setOutlineThickness(4);
 }
 //======================================================================================
 Bomb::Bomb(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
@@ -43,7 +46,7 @@ Bomb::Bomb(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
 	setRadius(BOMB_RADIUS);
 	setCenter(position);
 	setOrigin(BOMB_RADIUS, BOMB_RADIUS);
-	setFillColor(sf::Color::Yellow);//?????????????????
+	setFillColor(sf::Color::Red);//?????????????????
 }
 
 //====================================================================================

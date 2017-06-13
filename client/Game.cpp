@@ -7,7 +7,9 @@
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, Uint32 image_id) :m_me(std::make_unique<MyPlayer>())
+Game::Game(const Images &images, Uint32 image_id) 
+	:m_me(std::make_unique<MyPlayer>()),
+	m_background(images[int(BACKGROUND)])
 {
 	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
 		//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
@@ -32,11 +34,9 @@ void Game::receive(const Images &images)
 	Sleep(100);//*********************************
 
 	auto status = m_socket.receive(packet);
-	std::cout << "packet.getDataSize() " << packet.getDataSize() << '\n';
 
 	if (status == sf::TcpSocket::Done)
 	{
-		std::cout << "if\n";
 		while (!packet.endOfPacket())//קליטה של כל הדברים שעל הלוח
 		{
 			//std::cout << "while\n";
@@ -52,8 +52,6 @@ void Game::receive(const Images &images)
 			}
 		}
 	}
-	else
-		std::cout << "lfasdf\n";
 
 	m_players.erase(temp.first); //הורדת העיגול שלי מהשחקנים האחרים
 
@@ -75,10 +73,11 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 	while (true)
 	{
 		w.pollEvent(event);
+		auto speed = TimeClass::instance().RestartClock();
 
 		//תזוזה של השחקן
 		if (event.type == sf::Event::EventType::KeyPressed)
-			if (!updateMove(event))
+			if (!updateMove(speed))
 				return m_me->getScore();
 
 		//קבלת מידע מהשרת
@@ -99,13 +98,13 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 //===========================      UPDATE MOVE       =================================
 //====================================================================================
 //מחזיר שקר אם מתתי
-bool Game::updateMove(const sf::Event &event)
+bool Game::updateMove(float speed)
 {
 	sf::Packet packet;
 	packet.clear();
 	bool temp = true;
 
-	if (legalMove(event))
+	if (legalMove(speed))
 	{
 		std::vector<Uint32> deleted;
 
@@ -119,32 +118,31 @@ bool Game::updateMove(const sf::Event &event)
 	return temp;
 }
 //--------------------------------------------------------------------------
-bool Game::legalMove(const sf::Event &event)
+bool Game::legalMove(float speed)
 {
-
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		if (m_me->getCenter().y - m_me->getRadius() - MOVE < 0)
+		if (m_me->getCenter().y - m_me->getRadius() - speed*MOVE < 0)
 			return false;
 		else
-			m_me->move(0, -MOVE);
+			m_me->move(0, -speed*MOVE);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		if (m_me->getCenter().y + m_me->getRadius() + MOVE > BOARD_SIZE.y)
+		if (m_me->getCenter().y + m_me->getRadius() + speed*MOVE > BOARD_SIZE.y)
 			return false;
 		else
-			m_me->move(0, MOVE);
+			m_me->move(0, speed*MOVE);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		if (m_me->getCenter().x - m_me->getRadius() - MOVE < 0)
+		if (m_me->getCenter().x - m_me->getRadius() - speed*MOVE < 0)
 			return false;
 		else
-			m_me->move(-MOVE, 0);
+			m_me->move(-speed*MOVE, 0);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		if (m_me->getCenter().x + m_me->getRadius() + MOVE > BOARD_SIZE.x)
+		if (m_me->getCenter().x + m_me->getRadius() + speed*MOVE > BOARD_SIZE.x)
 			return false;
 		else
-			m_me->move(MOVE, 0);
+			m_me->move(speed*MOVE, 0);
 
 
 	return true;
@@ -221,6 +219,7 @@ void Game::draw(sf::RenderWindow &w) const
 	setView(w);
 
 	w.clear();
+	w.draw(m_background);
 
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
