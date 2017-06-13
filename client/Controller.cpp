@@ -97,12 +97,13 @@ void Controller::play(sf::RenderWindow& window) {
 	auto it = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get());
 	Game game{ m_images,/* m_fonts,*/it->getSelectedImage() + 2 /*,it->getName() */ ,view };
 	auto score = game.play(window, m_images); //run current level
+	sf::View view1(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
 
-	view.setCenter(float(SCREEN_WIDTH) / 2, float(SCREEN_HEIGHT) / 2);
+	view1.setCenter(float(SCREEN_WIDTH) / 2, float(SCREEN_HEIGHT) / 2);
    //when the level is over resize the window to half screen
 	/*display score screen*/
    //endLevelScreen(window, score);
-	window.setView(view);
+	window.setView(view1);
 	//sets the start boolean to be false
 	m_Menus[START_GAME]->setPressed(false);
 
