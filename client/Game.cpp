@@ -81,6 +81,9 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 			if (!updateMove(speed))
 				return m_me->getScore();
 
+		if (m_me->getRadius() < NEW_PLAYER)
+			return m_me->getScore();
+
 		//קבלת מידע מהשרת
 		if (!receiveChanges(event, images))
 			return m_me->getScore();
@@ -199,8 +202,6 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 //====================================================================================
 void Game::setView(sf::RenderWindow &w) const
 {
-	/*sf::View view;
-	view.reset(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });*/
 	sf::Vector2f pos{ float(SCREEN_WIDTH) / 2 , float(SCREEN_HEIGHT) / 2 };
 
 	if (m_me->getCenter().x > SCREEN_WIDTH / 2)

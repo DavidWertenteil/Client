@@ -74,7 +74,7 @@ public:
 	void checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard);
 	bool circlesCollide(const Circle* p) const;
 
-	void newRadius(const Circle *c);
+	void newRadius(Circle *c);
 	void move(float x, float y);
 
 	void setScore(Uint32 radius) { m_score += unsigned(radius); }

@@ -26,7 +26,7 @@ OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, float radius, sf
 {
 	setRadius(radius);
 	setPosition(position);
-	setCenter(position + Vector2f{radius, radius});
+	setCenter(position + Vector2f{ radius, radius });
 	setTexture(&image);
 }
 //======================================================================================
@@ -35,8 +35,8 @@ Food::Food(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
 	setRadius(FOOD_RADIUS);
 	setCenter(position);
 	setOrigin(FOOD_RADIUS, FOOD_RADIUS);
-	setFillColor(sf::Color(rand()%155+150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
-	setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b,100) );
+	setFillColor(sf::Color(rand() % 155 + 150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
+	setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b, 100));
 	setOutlineThickness(4);
 }
 //======================================================================================
@@ -51,9 +51,12 @@ Bomb::Bomb(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
 //====================================================================================
 //===========================        FUNCTION        =================================
 //====================================================================================
-void Player::newRadius(const Circle *c)
+void Player::newRadius(Circle *c)
 {
-	setRadius(getRadius() + c->getRadius() / 10);
+	if (dynamic_cast<Food*>(c))
+		setRadius(getRadius() + c->getRadius() / 10);
+	else if (dynamic_cast<Bomb*>(c))
+		setRadius(getRadius() / 2);
 }
 //-----------------------------------------------------
 void Player::move(float x, float y)
