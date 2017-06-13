@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <Windows.h>
-const auto f() { return sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) }; }
+
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
@@ -43,10 +43,10 @@ void Game::receive(const Images &images)
 			//std::cout << "while\n";
 			packet >> temp;
 
-			if (temp.first >= 1000 && temp.first <= 10000)
+			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
 				m_objectsOnBoard.insert(temp);
 
-			else if (temp.first >= 200 && temp.first <= 300)//???????????????????????
+			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
 				packet >> radius >> image;
 				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], radius, temp.second));
@@ -168,10 +168,10 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 		packet >> temp;
 		std::vector<Uint32> del;
 
-		if (temp.first >= 1000 && temp.first <= 10000) // אוכל או פצצות חדשות
+		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
 			m_objectsOnBoard.insert(temp);
 
-		else if (temp.first >= 200 && temp.first <= 300)// שחקן
+		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{
 			if (temp.first == m_me->getId())// השחקן שלי
 				continue;
@@ -181,14 +181,6 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
 				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
 					return false; //אם השחקן הרג אותי
-				//for (auto x:del) //אם השחקן התאבד
-				//	if (x == temp.first)
-				//	{
-				//		sf::Packet pack;
-				//		pack << std::vector<Uint32>{temp.first};
-				//		m_socket.send(pack);
-				//		break;
-				//	}
 			}
 			else // שחקן חדש
 			{
@@ -207,8 +199,8 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 //====================================================================================
 void Game::setView(sf::RenderWindow &w) const
 {
-	sf::View view;
-	view.reset(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
+	/*sf::View view;
+	view.reset(sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });*/
 	sf::Vector2f pos{ float(SCREEN_WIDTH) / 2 , float(SCREEN_HEIGHT) / 2 };
 
 	if (m_me->getCenter().x > SCREEN_WIDTH / 2)
@@ -274,10 +266,11 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				deleted.push_back(player.first); // מחיקה אצל השרת
 			}
 			else
-				temp = (getId() == me->getId()) ? false : true; //אם הנוכחי מת (לא השחקן שלי, השחקן הנבדק)י
+				temp = (dynamic_cast<MyPlayer*>(this)) ? false : true; //אם הנוכחי מת (לא השחקן שלי, השחקן הנבדק)י
 	}
 
-	if (getId() != me->getId()) //בדיקה של שחקן נוכחי מול השחקן שלי
+	//if (getId() != me->getId()) //בדיקה של שחקן נוכחי מול השחקן שלי
+	if(dynamic_cast<OtherPlayers*>(this))
 	{
 		if (circlesCollide(me))
 			if (getRadius() > me->getRadius())
@@ -302,7 +295,6 @@ void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard
 	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
 
 	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
-		//if (distance(getCenter(), objectsOnBoard[it]->getCenter()) <= getRadius() + objectsOnBoard[it]->getRadius())
 		if (circlesCollide(objectsOnBoard[it].get()))
 		{
 			newRadius(objectsOnBoard[it].get());

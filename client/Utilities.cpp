@@ -7,7 +7,7 @@
 //==========================================================================
 void Maps::insert(const std::pair<Uint32, sf::Vector2f> &temp)
 {
-	if (temp.first >= 1000 && temp.first <= 5000)
+	if (temp.first >= FOOD_LOWER && temp.first <= FOOD_UPPER)
 		emplace(temp.first, std::make_unique<Food>(temp));
 	else
 		emplace(temp.first, std::make_unique<Bomb>(temp));
