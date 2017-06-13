@@ -117,7 +117,7 @@ bool Game::updateMove(float speed)
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
 		if (!temp)
-			Sleep(100);
+			Sleep(200);
 	}
 
 	return temp;
