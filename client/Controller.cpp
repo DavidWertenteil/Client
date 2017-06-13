@@ -58,7 +58,7 @@ Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" , sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io");// , sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -83,7 +83,7 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 			play(window);//if game is over (no levels left)
 
 		window.clear();
-		window.draw(m_images[BACKGROUND1]);//background image of openning screen
+		window.draw(m_images.getImage(BACKGROUND1));//background image of openning screen
 		window.draw(m_Menus.getRec());// background menu rectangle
 		draw(window, m_Menus);		  // buttons of menu
 		m_screeninfo[(*m_Menus.getIteratorToCurrentPressed())->getPlace()]->display(window);

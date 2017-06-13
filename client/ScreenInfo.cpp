@@ -25,7 +25,7 @@ Logo::Logo(const sf::Font& font) : sf::Text::Text("Agar.io", font, LOGO_SIZE) {
 //									constructor
 //===============================================================================================================
 SettingsScreen::SettingsScreen(const sf::Font& font, const Images& image) {
-	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-2);
+	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-1);
 
 	setNameBox();
 	setTextInNameBox(font);
@@ -41,9 +41,9 @@ SettingsScreen::SettingsScreen(const sf::Font& font, const Images& image) {
 void SettingsScreen::mouseEventButton(const sf::Vector2f& ver, bool p) {
 	if (p) {
 		if (m_triangleLeft.setPressed(ver))
-			m_currentImage = (m_currentImage != 0)? m_currentImage - 1: Images_t::CIRCLE_NUMBER - 2;
+			m_currentImage = (m_currentImage != 0)? m_currentImage - 1: Images_t::CIRCLE_NUMBER - 1;
 		if (m_triangleRight.setPressed(ver))
-			m_currentImage = (m_currentImage != Images_t::CIRCLE_NUMBER - 2) ? m_currentImage + 1 : 0;
+			m_currentImage = (m_currentImage != Images_t::CIRCLE_NUMBER - 1) ? m_currentImage + 1 : 0;
 	}
 	else {
 		m_triangleLeft.setHover(ver);
@@ -55,14 +55,14 @@ void SettingsScreen::mouseEventButton(const sf::Vector2f& ver, bool p) {
 //								images in circle
 //===============================================================================================================
 void SettingsScreen::setCircle(const Images& image) {
-	for (size_t i = 0; i < Images_t::CIRCLE_NUMBER - 1; ++i) {
+	for (size_t i = 0; i < Images_t::CIRCLE_NUMBER; ++i) {
 		m_circle[i].setRadius(150);
 		m_circle[i].setOutlineThickness(5);
 		m_circle[i].setOutlineColor(sf::Color::Black);
 		auto x = (float(SCREEN_WIDTH) - m_circle[i].getGlobalBounds().width) / 2;
 		auto y = (float(SCREEN_HEIGHT) - m_circle[i].getGlobalBounds().height) / 2;
 		m_circle[i].setPosition(sf::Vector2f{ x,y });
-		m_circle[i].setTexture(&image[sf::Uint32(i+2)]);
+		m_circle[i].setTexture(&image[i]);
 	}
 }
 //===============================================================================================================

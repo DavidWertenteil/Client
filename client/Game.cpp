@@ -9,7 +9,7 @@ const auto f() { return sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIG
 //====================================================================================
 Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	:m_me(std::make_unique<MyPlayer>()),
-	m_background(images[int(BACKGROUND)]),
+	m_background(images.getImage(BACKGROUND)),
 	m_view(view)
 {
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
@@ -17,6 +17,7 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
+	std::cout << image_id<<'\n';
 	packet << image_id; //שליחה לשרת של התמונה שלי
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
@@ -117,7 +118,7 @@ bool Game::updateMove(float speed)
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
 		if (!temp)
-			Sleep(200);
+			Sleep(100);
 	}
 
 	return temp;
@@ -181,14 +182,6 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
 				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
 					return false; //אם השחקן הרג אותי
-				//for (auto x:del) //אם השחקן התאבד
-				//	if (x == temp.first)
-				//	{
-				//		sf::Packet pack;
-				//		pack << std::vector<Uint32>{temp.first};
-				//		m_socket.send(pack);
-				//		break;
-				//	}
 			}
 			else // שחקן חדש
 			{
@@ -302,7 +295,6 @@ void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard
 	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
 
 	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
-		//if (distance(getCenter(), objectsOnBoard[it]->getCenter()) <= getRadius() + objectsOnBoard[it]->getRadius())
 		if (circlesCollide(objectsOnBoard[it].get()))
 		{
 			newRadius(objectsOnBoard[it].get());

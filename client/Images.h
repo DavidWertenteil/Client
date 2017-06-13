@@ -6,10 +6,10 @@
 
 enum Images_t
 {
-	BACKGROUND,
+	BACKGROUND = 0,
 	BACKGROUND1,
 	SPRITE_NUMBER, //number of images, add an image befor this line 
-	color1 = 1,
+	color1 = 0,
 	color2,
 	color3,
 	color4,
@@ -39,12 +39,8 @@ public:
 	void setScale(const int i, const sf::Vector2f& scale) { m_image[i].setScale(scale); }
 
 	//operator
-	const sf::Sprite& operator[](int i)const { return m_image[i]; }
-	sf::Sprite& operator[](int i) { return m_image[i]; }
-	const sf::Texture& operator[](sf::Uint32 i) const { return m_picTexture[i]; } //????????????
-																				  //const sf::Texture& operator[](sf::Uint32 i) const { return m_cirTexture[i]; }
-
-
+	const sf::Texture& operator[](sf::Uint32 i)const { return m_cirTexture[i]; }
+	
 private:
 	void startImages();
 
