@@ -13,7 +13,7 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	m_view(view)
 {
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
@@ -116,8 +116,8 @@ bool Game::updateMove(float speed)
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
-		//if (!temp)
-			//Sleep(2000);
+		if (!temp)
+			Sleep(100);
 	}
 
 	return temp;
