@@ -133,7 +133,6 @@ void Controller::play(sf::RenderWindow& window) {
 	auto it = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get());
 	Game game{ m_images,/* m_fonts,*/it->getSelectedImage() /*,it->getName() */ ,view };
 	auto score = game.play(window, m_images); //run current level
-	score = 30;
 	//when the level is over resize the window to half screen
 
 	/*display score screen*/
