@@ -12,8 +12,8 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	m_background(images.getImage(BACKGROUND)),
 	m_view(view)
 {
-	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	//if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
+	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
@@ -94,7 +94,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 	}
 
 
-	return 0;
+	return m_me->getScore();
 }
 
 //====================================================================================

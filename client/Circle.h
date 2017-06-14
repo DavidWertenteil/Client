@@ -78,7 +78,7 @@ public:
 	void move(float x, float y);
 
 	void setScore(Uint32 radius) { m_score += unsigned(radius); }
-	unsigned getScore() const { return m_score; }
+	unsigned getScore() const { return getRadius(); }
 
 protected:
 	unsigned m_score = 0;
