@@ -20,6 +20,7 @@
 
 #define GAME_OVER -1
 #define START_GAME 0
+#define EXIT 3
 #define SETTINGS_SCREEN 1
 
 
@@ -58,7 +59,7 @@ Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" , sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io", sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -90,6 +91,41 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 		window.display();
 	}
 }
+//==========================================================================================================
+void Controller::endLevelScreen(sf::RenderWindow& w, sf::View& v, unsigned score) {
+	v.setCenter(float(SCREEN_WIDTH) / 2, float(SCREEN_HEIGHT) / 2);
+
+	auto position = v.getCenter();
+	position.x -= float(SCREEN_WIDTH / 2);
+	position.y -= float(SCREEN_HEIGHT / 2);
+	//auto position = v.getInverseTransform();
+
+	sf::RectangleShape screen{ { float(SCREEN_WIDTH),float(SCREEN_HEIGHT) } };
+	screen.setPosition(position);
+	screen.setFillColor(sf::Color(0, 0, 0, 130));
+	sf::Text m_l{ "GAME OVER",m_fonts[LOGO],150 };
+	sf::Text m_s{ "Your score is: " + std::to_string(score),m_fonts[MENU],50 };
+
+	auto x = (float(SCREEN_WIDTH) - m_l.getGlobalBounds().width) / 2;
+	auto y = (float(SCREEN_HEIGHT) - m_l.getGlobalBounds().height) / 6;
+	m_l.setPosition({ x, y });
+	m_l.setFillColor(sf::Color::Yellow);
+	m_l.setOutlineThickness(8);
+	m_l.setOutlineColor(sf::Color(220, 220, 220, 100));
+
+	x = (float(SCREEN_WIDTH) - m_s.getGlobalBounds().width) / 2;
+	y = (float(SCREEN_HEIGHT) - m_s.getGlobalBounds().height) / 1.5;
+	m_s.setPosition({ x, y });
+	m_s.setFillColor(sf::Color(255, 182, 193));
+	w.setView(v);
+
+	w.draw(screen);
+	w.draw(m_l);
+	w.draw(m_s);
+	w.display();
+
+	Sleep(5000);
+}
 //========================= start playing ====================================
 //if user pressed "Start"
 void Controller::play(sf::RenderWindow& window) {
@@ -97,17 +133,15 @@ void Controller::play(sf::RenderWindow& window) {
 	auto it = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get());
 	Game game{ m_images,/* m_fonts,*/it->getSelectedImage() /*,it->getName() */ ,view };
 	auto score = game.play(window, m_images); //run current level
-	sf::View view1(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
+	score = 30;
+	//when the level is over resize the window to half screen
 
-	view1.setCenter(float(SCREEN_WIDTH) / 2, float(SCREEN_HEIGHT) / 2);
-   //when the level is over resize the window to half screen
 	/*display score screen*/
-   //endLevelScreen(window, score);
-	window.setView(view1);
+	endLevelScreen(window, view, score);
+
 	//sets the start boolean to be false
 	m_Menus[START_GAME]->setPressed(false);
-
-
+	m_Menus.restartIt();
 }
 //======================= The events of menu screen ===================================
 void Controller::events(sf::RenderWindow& window) {
@@ -132,13 +166,11 @@ void Controller::events(sf::RenderWindow& window) {
 		m_Menus.mouseEventButton(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }), true);
 		break;
 	case  sf::Event::TextEntered:
-		if (pressed)//only if name box was pressed
-			dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get())->enterName(event);
+		if (pressed)dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get())->enterName(event);
 		break;
 	case sf::Event::MouseMoved:
 		m_Menus.mouseEventButton(window.mapPixelToCoords({ event.mouseMove.x, event.mouseMove.y }), false);
 		if (settings) m_screeninfo[SETTINGS_SCREEN]->mouseEventButton({ float(event.mouseMove.x),float(event.mouseMove.y) }, false);
-
 		break;
 	}
 
