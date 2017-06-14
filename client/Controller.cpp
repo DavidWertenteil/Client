@@ -114,7 +114,7 @@ void Controller::endLevelScreen(sf::RenderWindow& w, sf::View& v, unsigned score
 	m_l.setOutlineColor(sf::Color(220, 220, 220, 100));
 
 	x = (float(SCREEN_WIDTH) - m_s.getGlobalBounds().width) / 2;
-	y = (float(SCREEN_HEIGHT) - m_s.getGlobalBounds().height) / 1.5;
+	y = (float(SCREEN_HEIGHT) - m_s.getGlobalBounds().height) / 1.5f;
 	m_s.setPosition({ x, y });
 	m_s.setFillColor(sf::Color(255, 182, 193));
 	w.setView(v);
