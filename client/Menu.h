@@ -1,6 +1,5 @@
 #pragma once
-#include "Images.h"
-#include "Fonts.h"
+#include "tempScreens.h"
 
 #include <memory>
 
@@ -45,9 +44,16 @@ protected:
 //======================================================================================
 class Start : public Button {
 public:
-	Start(const sf::Font& font, const sf::String& str = "Play", unsigned p = 0) :Button(font, str) {}
+	Start(const Fonts& font, const sf::String& str = "Play", unsigned p = 0)
+		:Button(font[MENU], str),
+		m_load(font),
+		m_end(font) {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
-
+	void load(sf::RenderWindow& w)const { m_load.display(w); }
+	void gameOver(sf::RenderWindow& w, sf::View&v, unsigned s) { m_end.endLevelScreen(w, v, s); }
+private:
+	loading m_load;
+	EndLevel m_end;
 };
 //======================================================================================
 //                           class Settings
@@ -55,9 +61,7 @@ public:
 class Settings : public Button {
 public:
 	Settings(const sf::Font& font, const sf::String& str = "Settings", unsigned p = 1) :Button(font, str, p) {}
-
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
-
 };
 //======================================================================================
 //                           class Help
@@ -65,9 +69,7 @@ public:
 class Help : public Button {
 public:
 	Help(const sf::Font& font, const sf::String& str = "Help", unsigned p = 2) :Button(font, str, p) {}
-
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
-
 };
 //======================================================================================
 //                        class Close
@@ -89,11 +91,13 @@ public:
 	void mouseEventButton(const sf::Vector2f&, bool);
 	auto getIteratorToCurrentPressed()const { return m_itToPressed; }
 	const sf::RectangleShape& getRec()const { return (*this); }
-	void restartIt() { m_itToPressed = --end(); }
+	void restartMenu() { (*this)[0]->setPressed(false); restartIt(); }
+
 private:
 	void setMenuRec();
 	void setMenuVector(const Fonts&);
 
+	void restartIt() { m_itToPressed = --end(); }
 	std::vector<std::unique_ptr<Button>>::iterator m_itToPressed;
 
 };

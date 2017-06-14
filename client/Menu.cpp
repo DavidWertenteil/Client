@@ -20,7 +20,7 @@ void Menu::setMenuRec() {
 
 void Menu::setMenuVector(const Fonts& fonts) {
 	//puts Menus for opnning screen in a vector
-	push_back(std::make_unique<Start>(fonts[fonts::MENU]));
+	push_back(std::make_unique<Start>(fonts));
 	push_back(std::make_unique<Settings>(fonts[fonts::MENU]));
 	push_back(std::make_unique<Help>(fonts[fonts::MENU]));
 	push_back(std::make_unique<Close>(fonts[fonts::MENU]));
