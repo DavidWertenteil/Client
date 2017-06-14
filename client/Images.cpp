@@ -31,5 +31,8 @@ void Images::startImages() {
 	m_cirTexture[color10].loadFromFile("Images/color10.png");
 	m_cirTexture[color11].loadFromFile("Images/color11.png");
 
+	m_cirTexture[BOMB_PIC].loadFromFile("Images/bomb.png");
+	m_cirTexture[FOOD_PIC].loadFromFile("Images/food.jpg");
+
 
 }

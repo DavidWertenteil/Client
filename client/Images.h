@@ -20,7 +20,9 @@ enum Images_t
 	color9,
 	color10,
 	color11,
-	CIRCLE_NUMBER
+	CIRCLE_NUMBER,
+	BOMB_PIC,
+	FOOD_PIC
 };
 
 
@@ -45,6 +47,6 @@ private:
 	void startImages();
 
 	sf::Texture m_picTexture[Images_t::SPRITE_NUMBER];
-	sf::Texture m_cirTexture[Images_t::CIRCLE_NUMBER];
+	sf::Texture m_cirTexture[Images_t::CIRCLE_NUMBER+3];
 	std::vector<sf::Sprite> m_image;
 };
