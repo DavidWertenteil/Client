@@ -89,6 +89,7 @@ public:
 	void mouseEventButton(const sf::Vector2f&, bool);
 	auto getIteratorToCurrentPressed()const { return m_itToPressed; }
 	const sf::RectangleShape& getRec()const { return (*this); }
+	void restartIt() { m_itToPressed = --end(); }
 private:
 	void setMenuRec();
 	void setMenuVector(const Fonts&);

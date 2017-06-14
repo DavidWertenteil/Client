@@ -12,7 +12,7 @@ const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 class Game
 {
 public:
-	Game(const Images &images, Uint32 image);
+	Game(const Images &images, Uint32 image,sf::View&);
 	void receive(const Images &images);
 	unsigned play(sf::RenderWindow &w, const Images &images);
 	
@@ -32,6 +32,6 @@ private:
 	//m_miniMap;
 	//Score m_score;
 	sf::TcpSocket m_socket;
-	//sf::View m_view{ sf::FloatRect{ 0,0,float(SCREEN_WIDTH),float(SCREEN_HEIGHT) } };
+	sf::View& m_view; //
 };
 //--------------------------------------------------------------------------

@@ -45,7 +45,7 @@ void Menu::mouseEventButton(const sf::Vector2f& location, bool event) {
 		(event) ? (m_itToPressed = (*button)->pressed(location) ? button : m_itToPressed) : (*button)->onBotton(location);
 
 	//update close class what is displaying
-	(*(--button))->setPressed(button != m_itToPressed);
+	(*(--button))->setPressed(button != m_itToPressed );//&& begin() == m_itToPressed
 }
 //=====================================================================================
 //			Close functions

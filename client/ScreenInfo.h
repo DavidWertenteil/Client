@@ -87,7 +87,7 @@ private:
 	//begin :
 	Triangl m_triangleLeft;
 	Triangl m_triangleRight;
-	sf::CircleShape m_circle[Images_t::CIRCLE_NUMBER - 1];
+	sf::CircleShape m_circle[Images_t::CIRCLE_NUMBER];
 
 	void setCircle(const Images& image);
 	void setTriangle(const sf::CircleShape&, sf::CircleShape&);

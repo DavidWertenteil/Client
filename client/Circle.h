@@ -26,13 +26,23 @@
 class Maps;
 class OtherPlayers;
 
-const float FOOD_RADIUS = 10;
-const float BOMB_RADIUS = 30;
-const float NEW_PLAYER = 60;
-
 using sf::Uint32;
 using sf::CircleShape;
 using sf::Vector2f;
+
+const float FOOD_RADIUS = 10;
+const float BOMB_RADIUS = 50;
+const float NEW_PLAYER = 60;
+const unsigned MAX_IMAGE = 100;
+
+const Uint32 PLAYER_LOWER = 200;
+const Uint32 PLAYER_UPPER = 300;
+
+const Uint32 FOOD_LOWER = 1000;
+const Uint32 FOOD_UPPER = 5000;
+
+const Uint32 BOMBS_LOWER = 6000;
+const Uint32 BOMBS_UPPER = 10000;
 
 class Circle :public CircleShape
 {
@@ -62,13 +72,13 @@ public:
 	bool collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	bool checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	void checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard);
-	bool circlesCollide(const Player* p) const;
+	bool circlesCollide(const Circle* p) const;
 
-	void newRadius(const Circle *c);
+	void newRadius(Circle *c);
 	void move(float x, float y);
 
 	void setScore(Uint32 radius) { m_score += unsigned(radius); }
-	unsigned getScore() const { return m_score; }
+	unsigned getScore() const { return getRadius(); }
 
 protected:
 	unsigned m_score = 0;

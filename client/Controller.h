@@ -19,6 +19,7 @@ public:
 	void MenuEvents(sf::RenderWindow&);
 	void events(sf::RenderWindow&);
 	void play(sf::RenderWindow&);
+	void endLevelScreen(sf::RenderWindow& , sf::View&, unsigned );
 
 private:
 	void makeScreen();
