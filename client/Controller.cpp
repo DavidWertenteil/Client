@@ -79,10 +79,10 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 
 	while (window.isOpen())
 	{
-		events(window);  //get event from user
 		if (m_Menus[START_GAME]->getPressed())
 			play(window);
 
+		events(window);  //get event from user
 		window.clear();
 		window.draw(m_images.getImage(BACKGROUND1));//background image of openning screen
 		window.draw(m_Menus.getRec());// background menu rectangle

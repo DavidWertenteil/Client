@@ -1,9 +1,6 @@
 #pragma once
 #include "Utilities.h"
-#include "Images.h"
-#include <memory>
 #include <map>
-#include <unordered_map>
 
 const float MOVE = 400;
 const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };

@@ -12,8 +12,8 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	m_background(images.getImage(BACKGROUND)),
 	m_view(view)
 {
-	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+	//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
@@ -45,7 +45,7 @@ void Game::receive(const Images &images)
 			packet >> temp;
 
 			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
-				m_objectsOnBoard.insert(temp);
+				m_objectsOnBoard.insert(temp, images);
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
@@ -175,7 +175,7 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 		std::vector<Uint32> del;
 
 		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
-			m_objectsOnBoard.insert(temp);
+			m_objectsOnBoard.insert(temp, images);
 
 		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{

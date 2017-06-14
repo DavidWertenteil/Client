@@ -2,8 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <string>
-
 enum Images_t
 {
 	BACKGROUND = 0,
@@ -39,7 +37,6 @@ public:
 	/* set */
 	void setPosition(const int i, const sf::Vector2f& position) { m_image[i].setPosition(position); }
 	void setScale(const int i, const sf::Vector2f& scale) { m_image[i].setScale(scale); }
-	//const sf::Sprite& getBackground()const{return m_}
 	//operator
 	const sf::Texture& operator[](sf::Uint32 i)const { return m_cirTexture[i]; }
 	

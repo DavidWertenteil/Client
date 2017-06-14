@@ -23,7 +23,7 @@ public:
 	virtual ~EndLevel() = default;
 	void endLevelScreen(sf::RenderWindow&, sf::View&, unsigned);
 private:
-	void setScore(unsigned s) { m_info.setString(m_info.getString() + std::to_string(s)); }
+	void setScore(unsigned s) { m_info.setString("Your score is: " + std::to_string(s)); }
 };
 //==============================================================================
 

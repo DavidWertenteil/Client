@@ -41,15 +41,12 @@ Food::Food(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
 	setOutlineThickness(4);
 }
 //======================================================================================
-	sf::Texture t;
-Bomb::Bomb(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
+Bomb::Bomb(Uint32 id, sf::Vector2f position, const sf::Texture& tex) :FoodAndBomb(id, position)
 {
 	setRadius(BOMB_RADIUS);
 	setCenter(position);
 	setOrigin(BOMB_RADIUS, BOMB_RADIUS);
-	//setFillColor(sf::Color::Red);//?????????????????
-	t.loadFromFile("Images/bomb.png");
-	setTexture(&t);
+	setTexture(&tex);
 }
 
 //====================================================================================

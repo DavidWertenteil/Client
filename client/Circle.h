@@ -1,11 +1,10 @@
 #pragma once
-#include <SFML\Graphics.hpp>
 #include<SFML\Network.hpp>
 #include <memory>
 #include <set>
 #include <iostream>
+#include "Images.h"
 #include <unordered_map>
-
 
 #ifdef _DEBUG
 #pragma comment(lib, "sfml-main-d.lib")
@@ -124,8 +123,8 @@ public:
 class Bomb :public FoodAndBomb
 {
 public:
-	Bomb(Uint32 id, sf::Vector2f place);
-	Bomb(std::pair<Uint32, sf::Vector2f> temp) :Bomb(temp.first, temp.second) {}
+	Bomb(Uint32 id, sf::Vector2f place, const sf::Texture&);
+	Bomb(std::pair<Uint32, sf::Vector2f> temp, const sf::Texture& t) :Bomb(temp.first, temp.second, t) {}
 
 	void f() override {}
 };
