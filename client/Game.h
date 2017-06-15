@@ -2,8 +2,6 @@
 #include "Utilities.h"
 #include <map>
 
-const float MOVE = 400;
-const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 
 
 class Game
@@ -18,7 +16,7 @@ public:
 
 private:
 	bool updateMove(float);
-	bool legalMove(float);
+	//bool legalMove(float);
 	bool receiveChanges(const sf::Event &event, const Images &images);
 
 	//===========================

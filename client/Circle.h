@@ -43,6 +43,9 @@ const Uint32 FOOD_UPPER = 5000;
 const Uint32 BOMBS_LOWER = 6000;
 const Uint32 BOMBS_UPPER = 10000;
 
+const float MOVE = 800;
+const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
+
 class Circle :public CircleShape
 {
 public:
@@ -53,6 +56,7 @@ public:
 	Uint32 getId() const { return m_id; }
 	const Vector2f& getCenter() const { return m_center; }
 	void setCenter(Vector2f center) { m_center = center; }
+	void setCenter() { m_center = getPosition() + Vector2f{ getRadius(), getRadius() }; }
 
 	void virtual f() = 0;
 
@@ -88,7 +92,17 @@ class MyPlayer :public Player
 public:
 	MyPlayer();
 	MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position = { 0.f,0.f });
-	MyPlayer(const MyPlayer& p) :Player(p) {}
+	//MyPlayer(const MyPlayer& p) :MyPlayer(p.getId(), p.getCenter(), p.getScore()) {}
+	MyPlayer(const MyPlayer& p)
+	{
+		setPosition(p.getPosition());
+		setCenter(p.getCenter());
+		setRadius(p.getRadius());
+		m_id = p.getId();
+	}
+
+
+	bool legalMove(float speed);
 	
 	void setId(Uint32 id) { m_id = id; }
 	void setTexture(const sf::Texture &image) { CircleShape::setTexture(&image); }

@@ -76,4 +76,34 @@ bool Player::circlesCollide(const Circle* p) const
 {
 	return distance(getCenter(), p->getCenter()) <= getRadius() + p->getRadius();
 }
+//-----------------------------------------------------
+bool MyPlayer::legalMove(float speed)
+{
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		if (getCenter().y - getRadius() - speed*MOVE < 0)
+			return false;
+		else
+			move(0, -speed*MOVE);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		if (getCenter().y + getRadius() + speed*MOVE > BOARD_SIZE.y)
+			return false;
+		else
+			move(0, speed*MOVE);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		if (getCenter().x - getRadius() - speed*MOVE < 0)
+			return false;
+		else
+			move(-speed*MOVE, 0);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		if (getCenter().x + getRadius() + speed*MOVE > BOARD_SIZE.x)
+			return false;
+		else
+			move(speed*MOVE, 0);
+
+
+	return true;
+}
 

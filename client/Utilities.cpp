@@ -12,7 +12,7 @@ void Maps::insert(const std::pair<Uint32, sf::Vector2f> &temp, const Images &ima
 	else
 		emplace(temp.first, std::make_unique<Bomb>(temp, images[BOMB_PIC]));
 
-	m_x.emplace(temp.second.x, temp.first );
+	m_x.emplace(temp.second.x, temp.first);
 	m_y.emplace(temp.second.y, temp.first);
 
 }
@@ -30,10 +30,12 @@ std::set<Uint32> Maps::colliding(const Vector2f& ver, const float radius)
 	std::set<Uint32> intersection;
 
 	for (; xLower != xUpper; ++xLower)
-		x.emplace(find(xLower->second)->first);
+		if (find(xLower->second) != end())
+			x.emplace(find(xLower->second)->first);
 
 	for (; yLower != yUpper; ++yLower)
-		y.emplace(find(yLower->second)->first);
+		if (find(yLower->second) != end())
+			y.emplace(find(yLower->second)->first);
 
 	std::set_intersection(x.begin(), x.end(), y.begin(), y.end(), std::inserter(intersection, intersection.begin()));
 
