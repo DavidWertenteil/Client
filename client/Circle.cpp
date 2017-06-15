@@ -30,15 +30,15 @@ OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, float radius, sf
 	setTexture(&image);
 }
 //======================================================================================
-sf::Texture aa;
-Food::Food(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
+Food::Food(Uint32 id, sf::Vector2f position, const sf::Texture& t) :FoodAndBomb(id, position)
 {
 	setRadius(FOOD_RADIUS);
 	setCenter(position);
 	setOrigin(FOOD_RADIUS, FOOD_RADIUS);
 	setFillColor(sf::Color(rand() % 155 + 150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
-	setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b, 100));
-	setOutlineThickness(4);
+	//setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b, 100));
+	//setOutlineThickness(4);
+	setTexture(&t);
 }
 //======================================================================================
 Bomb::Bomb(Uint32 id, sf::Vector2f position, const sf::Texture& tex) :FoodAndBomb(id, position)

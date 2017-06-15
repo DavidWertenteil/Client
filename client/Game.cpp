@@ -41,7 +41,6 @@ void Game::receive(const Images &images)
 	{
 		while (!packet.endOfPacket())//קליטה של כל הדברים שעל הלוח
 		{
-			//std::cout << "while\n";
 			packet >> temp;
 
 			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
@@ -78,7 +77,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 		auto speed = TimeClass::instance().RestartClock();
 
 		//תזוזה של השחקן
-		if (m_receive)
+		if (m_receive) // אם הוא קלט את התזוזה הקודמת שלו
 			if (event.type == sf::Event::EventType::KeyPressed)
 				if (!updateMove(speed))
 					return m_me->getScore();
@@ -88,14 +87,11 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 		if (!receiveChanges(event, images))
 			return m_me->getScore();
 
-		m_socket.setBlocking(false);
-
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
 
 		draw(w);
 	}
-
 
 	return m_me->getScore();
 }
@@ -106,6 +102,8 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 //מחזיר שקר אם מתתי
 bool Game::updateMove(float speed)
 {
+	static int x = 0;
+
 	sf::Packet packet;
 	packet.clear();
 	bool temp = true;
@@ -114,13 +112,10 @@ bool Game::updateMove(float speed)
 	std::unique_ptr<MyPlayer> tempMe = std::make_unique<MyPlayer>(*m_me.get());
 	if (tempMe->legalMove(speed))
 	{
-		//עם מי הוא מתנגש
-		//רדיוס
 		std::vector<Uint32> deleted;
 
-		temp = tempMe->collision(deleted, m_objectsOnBoard, m_players, tempMe.get());
-		// אם מתתי מפצצה
-		if (tempMe->getRadius() < NEW_PLAYER)
+		temp = tempMe->collision(deleted, m_objectsOnBoard, m_players, tempMe.get());	
+		if (tempMe->getRadius() < NEW_PLAYER)  // אם מתתי מפצצה
 			temp = false;
 
 		if (!temp)
@@ -129,10 +124,11 @@ bool Game::updateMove(float speed)
 		//שליחת אובייקט זמני
 		packet << tempMe->getId() << tempMe->getRadius() << tempMe->getPosition() << deleted;
 
-		//std::cout << "temp position: " << tempMe->getPosition().x << " " << tempMe->getPosition().y << '\n';
-
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
+
+		x++;
+		std::cout << x<<'\n';
 		if (!temp)
 			Sleep(100);
 
@@ -140,61 +136,11 @@ bool Game::updateMove(float speed)
 		m_me->setPosition(tempMe->getPosition());
 		m_me->setCenter();
 
-		//**************************************************************************************
-		//std::vector<Uint32> deleted;
-
-		//temp = m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get());
-		//if (m_me->getRadius() < NEW_PLAYER)
-		//	temp = false;
-
-		//if (!temp)
-		//	deleted.push_back(m_me->getId()); // אם מתתי
-
-		//packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
-
-		//if (m_socket.send(packet) != sf::TcpSocket::Done)
-		//	std::cout << "no sending data\n";
-		//if (!temp)
-		//	Sleep(100);
-		//****************************************************************************************
-
-		//m_socket.setBlocking(true);
-
 		m_receive = false;
 	}
 
 	return temp;
 }
-//--------------------------------------------------------------------------
-//bool Game::legalMove(float speed)
-//{
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-//		if (m_me->getCenter().y - m_me->getRadius() - speed*MOVE < 0)
-//			return false;
-//		//else
-//			//m_me->move(0, -speed*MOVE);
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-//		if (m_me->getCenter().y + m_me->getRadius() + speed*MOVE > BOARD_SIZE.y)
-//			return false;
-//	/*	else
-//			m_me->move(0, speed*MOVE);*/
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-//		if (m_me->getCenter().x - m_me->getRadius() - speed*MOVE < 0)
-//			return false;
-//		/*else
-//			m_me->move(-speed*MOVE, 0);*/
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-//		if (m_me->getCenter().x + m_me->getRadius() + speed*MOVE > BOARD_SIZE.x)
-//			return false;
-//		/*else
-//			m_me->move(speed*MOVE, 0);
-//*/
-//
-//	return true;
-//}
 
 //====================================================================================
 //===========================      RECEIVE DATA      =================================
@@ -203,58 +149,47 @@ bool Game::updateMove(float speed)
 bool Game::receiveChanges(const sf::Event &event, const Images &images)
 {
 	sf::Packet packet;
-	//m_socket.setBlocking(false);
 
-	m_socket.receive(packet); //!= sf::TcpSocket::Done)
-	//	std::cout << "balbal\n";
-	bool temp1 = true;
-
-	//	if (packet.endOfPacket())
-		//	std::cout << "empty packet\n";
 	while (!packet.endOfPacket())
 	{
 		std::pair<Uint32, sf::Vector2f> temp;
 		packet >> temp;
 		std::vector<Uint32> del;
 
-		//	std::cout << temp.first<<'\n';
 		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
 			m_objectsOnBoard.insert(temp, images);
 
 		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{
 			if (temp.first == m_me->getId())// השחקן שלי
-				//continue;
-			{
-				//	std::cout << "new position: " << temp.second.x << " " << temp.second.y << '\n';
-				/*	m_me->setPosition(temp.second);
-					m_me->setCenter();*/
-					// אין את הרדיוס החדש
-
 				m_receive = true;
-			}
 
 			else if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
 			{
 				m_players[temp.first]->setPosition(temp.second);
-				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
+				//m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
+				m_players[temp.first]->setCenter();
 				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
 					return false; //אם השחקן הרג אותי
 			}
 			else // שחקן חדש
 			{
-				Uint32 image;
+				addPlayer(temp, packet, images);
+				/*Uint32 image;
 				packet >> image;
-				std::cout << "NEW\n";
-				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));
+				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));*/
 			}
 		}
 	}
-
-	//return true;
-	return temp1;
+	return true;
 }
-
+//------------------------------------------------------------------------------------
+void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images)
+{
+	Uint32 image;
+	packet >> image;
+	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));
+}
 //====================================================================================
 //===========================          PRINT         =================================
 //====================================================================================

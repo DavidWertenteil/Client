@@ -29,7 +29,7 @@ using sf::Uint32;
 using sf::CircleShape;
 using sf::Vector2f;
 
-const float FOOD_RADIUS = 10;
+const float FOOD_RADIUS = 22;
 const float BOMB_RADIUS = 50;
 const float NEW_PLAYER = 60;
 const unsigned MAX_IMAGE = 100;
@@ -129,8 +129,8 @@ public:
 class Food :public FoodAndBomb
 {
 public:
-	Food(Uint32 id, sf::Vector2f place);
-	Food(std::pair<Uint32, sf::Vector2f> temp) :Food(temp.first, temp.second) {}
+	Food(Uint32 id, sf::Vector2f place, const sf::Texture&);
+	Food(std::pair<Uint32, sf::Vector2f> temp, const sf::Texture& t) :Food(temp.first, temp.second, t) {}
 
 	void f() override {}
 };

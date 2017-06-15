@@ -18,6 +18,7 @@ private:
 	bool updateMove(float);
 	//bool legalMove(float);
 	bool receiveChanges(const sf::Event &event, const Images &images);
+	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images);
 
 	//===========================
 	Maps m_objectsOnBoard;

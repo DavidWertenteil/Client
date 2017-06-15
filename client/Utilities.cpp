@@ -8,7 +8,7 @@
 void Maps::insert(const std::pair<Uint32, sf::Vector2f> &temp, const Images &images)
 {
 	if (temp.first >= FOOD_LOWER && temp.first <= FOOD_UPPER)
-		emplace(temp.first, std::make_unique<Food>(temp));
+		emplace(temp.first, std::make_unique<Food>(temp, images[FOOD_PIC]));
 	else
 		emplace(temp.first, std::make_unique<Bomb>(temp, images[BOMB_PIC]));
 
