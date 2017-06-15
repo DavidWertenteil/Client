@@ -17,7 +17,7 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
-	std::cout << image_id<<'\n';
+	std::cout << image_id << '\n';
 	packet << image_id; //שליחה לשרת של התמונה שלי
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
@@ -78,9 +78,10 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 		auto speed = TimeClass::instance().RestartClock();
 
 		//תזוזה של השחקן
-		if (event.type == sf::Event::EventType::KeyPressed)
-			if (!updateMove(speed))
-				return m_me->getScore();
+		if (m_receive)
+			if (event.type == sf::Event::EventType::KeyPressed)
+				if (!updateMove(speed))
+					return m_me->getScore();
 
 
 		//קבלת מידע מהשרת
@@ -109,7 +110,7 @@ bool Game::updateMove(float speed)
 	packet.clear();
 	bool temp = true;
 
-		//אובייקט זמני
+	//אובייקט זמני
 	std::unique_ptr<MyPlayer> tempMe = std::make_unique<MyPlayer>(*m_me.get());
 	if (tempMe->legalMove(speed))
 	{
@@ -119,8 +120,8 @@ bool Game::updateMove(float speed)
 
 		temp = tempMe->collision(deleted, m_objectsOnBoard, m_players, tempMe.get());
 		// אם מתתי מפצצה
-		//if (tempMe->getRadius() < NEW_PLAYER)
-			//temp = false;
+		if (tempMe->getRadius() < NEW_PLAYER)
+			temp = false;
 
 		if (!temp)
 			deleted.push_back(tempMe->getId()); // אם מתתי
@@ -136,6 +137,8 @@ bool Game::updateMove(float speed)
 			Sleep(100);
 
 		m_me->setRadius(tempMe->getRadius());
+		m_me->setPosition(tempMe->getPosition());
+		m_me->setCenter();
 
 		//**************************************************************************************
 		//std::vector<Uint32> deleted;
@@ -155,7 +158,9 @@ bool Game::updateMove(float speed)
 		//	Sleep(100);
 		//****************************************************************************************
 
-		m_socket.setBlocking(true);
+		//m_socket.setBlocking(true);
+
+		m_receive = false;
 	}
 
 	return temp;
@@ -198,21 +203,21 @@ bool Game::updateMove(float speed)
 bool Game::receiveChanges(const sf::Event &event, const Images &images)
 {
 	sf::Packet packet;
-	m_socket.setBlocking(false);
+	//m_socket.setBlocking(false);
 
 	m_socket.receive(packet); //!= sf::TcpSocket::Done)
 	//	std::cout << "balbal\n";
-	bool temp1 = true; 
+	bool temp1 = true;
 
-//	if (packet.endOfPacket())
-	//	std::cout << "empty packet\n";
+	//	if (packet.endOfPacket())
+		//	std::cout << "empty packet\n";
 	while (!packet.endOfPacket())
 	{
 		std::pair<Uint32, sf::Vector2f> temp;
 		packet >> temp;
 		std::vector<Uint32> del;
 
-	//	std::cout << temp.first<<'\n';
+		//	std::cout << temp.first<<'\n';
 		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
 			m_objectsOnBoard.insert(temp, images);
 
@@ -221,10 +226,12 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 			if (temp.first == m_me->getId())// השחקן שלי
 				//continue;
 			{
-			//	std::cout << "new position: " << temp.second.x << " " << temp.second.y << '\n';
-				m_me->setPosition(temp.second);
-				m_me->setCenter();
-				// אין את הרדיוס החדש
+				//	std::cout << "new position: " << temp.second.x << " " << temp.second.y << '\n';
+				/*	m_me->setPosition(temp.second);
+					m_me->setCenter();*/
+					// אין את הרדיוס החדש
+
+				m_receive = true;
 			}
 
 			else if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
@@ -325,7 +332,7 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 	}
 
 	//if (getId() != me->getId()) //בדיקה של שחקן נוכחי מול השחקן שלי
-	if(dynamic_cast<OtherPlayers*>(this))
+	if (dynamic_cast<OtherPlayers*>(this))
 	{
 		if (circlesCollide(me))
 			if (getRadius() > me->getRadius())

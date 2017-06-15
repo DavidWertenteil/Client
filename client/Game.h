@@ -28,5 +28,7 @@ private:
 	//Score m_score;
 	sf::TcpSocket m_socket;
 	sf::View& m_view; //
+
+	bool m_receive = true;
 };
 //--------------------------------------------------------------------------
