@@ -29,7 +29,7 @@ using sf::Uint32;
 using sf::CircleShape;
 using sf::Vector2f;
 
-const float FOOD_RADIUS = 10;
+const float FOOD_RADIUS = 22;
 const float BOMB_RADIUS = 50;
 const float NEW_PLAYER = 60;
 const unsigned MAX_IMAGE = 100;
@@ -43,6 +43,10 @@ const Uint32 FOOD_UPPER = 5000;
 const Uint32 BOMBS_LOWER = 6000;
 const Uint32 BOMBS_UPPER = 10000;
 
+const float MOVE = 800;
+const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
+
+
 class Circle :public CircleShape
 {
 public:
@@ -53,6 +57,7 @@ public:
 	Uint32 getId() const { return m_id; }
 	const Vector2f& getCenter() const { return m_center; }
 	void setCenter(Vector2f center) { m_center = center; }
+	void setCenter() { m_center = getPosition() + Vector2f{ getRadius(), getRadius() }; }
 
 	void virtual f() = 0;
 
@@ -65,7 +70,7 @@ class Player :public Circle
 {
 public:
 	Player() = default;
-	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0) :Circle(id, c) {}
+	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0) :Circle(id, c) { setPointCount(100); }
 	Player(const Player& p) :Player(p.getId(), p.getCenter(), p.getScore()) {}
 
 	bool collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
@@ -88,7 +93,17 @@ class MyPlayer :public Player
 public:
 	MyPlayer();
 	MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position = { 0.f,0.f });
-	MyPlayer(const MyPlayer& p) :Player(p) {}
+	//MyPlayer(const MyPlayer& p) :MyPlayer(p.getId(), p.getCenter(), p.getScore()) {}
+	MyPlayer(const MyPlayer& p)
+	{
+		setPosition(p.getPosition());
+		setCenter(p.getCenter());
+		setRadius(p.getRadius());
+		m_id = p.getId();
+	}
+
+
+	bool legalMove(float speed);
 	
 	void setId(Uint32 id) { m_id = id; }
 	void setTexture(const sf::Texture &image) { CircleShape::setTexture(&image); }
@@ -114,8 +129,8 @@ public:
 class Food :public FoodAndBomb
 {
 public:
-	Food(Uint32 id, sf::Vector2f place);
-	Food(std::pair<Uint32, sf::Vector2f> temp) :Food(temp.first, temp.second) {}
+	Food(Uint32 id, sf::Vector2f place, const sf::Texture&);
+	Food(std::pair<Uint32, sf::Vector2f> temp, const sf::Texture& t) :Food(temp.first, temp.second, t) {}
 
 	void f() override {}
 };

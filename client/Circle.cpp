@@ -30,15 +30,15 @@ OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, float radius, sf
 	setTexture(&image);
 }
 //======================================================================================
-sf::Texture aa;
-Food::Food(Uint32 id, sf::Vector2f position) :FoodAndBomb(id, position)
+Food::Food(Uint32 id, sf::Vector2f position, const sf::Texture& t) :FoodAndBomb(id, position)
 {
 	setRadius(FOOD_RADIUS);
 	setCenter(position);
 	setOrigin(FOOD_RADIUS, FOOD_RADIUS);
 	setFillColor(sf::Color(rand() % 155 + 150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
-	setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b, 100));
-	setOutlineThickness(4);
+	//setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b, 100));
+	//setOutlineThickness(4);
+	setTexture(&t);
 }
 //======================================================================================
 Bomb::Bomb(Uint32 id, sf::Vector2f position, const sf::Texture& tex) :FoodAndBomb(id, position)
@@ -75,5 +75,35 @@ float distance(const sf::Vector2f &p1, const sf::Vector2f &p2)
 bool Player::circlesCollide(const Circle* p) const
 {
 	return distance(getCenter(), p->getCenter()) <= getRadius() + p->getRadius();
+}
+//-----------------------------------------------------
+bool MyPlayer::legalMove(float speed)
+{
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		if (getCenter().y - getRadius() - speed*MOVE < 0)
+			return false;
+		else
+			move(0, -speed*MOVE);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		if (getCenter().y + getRadius() + speed*MOVE > BOARD_SIZE.y)
+			return false;
+		else
+			move(0, speed*MOVE);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		if (getCenter().x - getRadius() - speed*MOVE < 0)
+			return false;
+		else
+			move(-speed*MOVE, 0);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		if (getCenter().x + getRadius() + speed*MOVE > BOARD_SIZE.x)
+			return false;
+		else
+			move(speed*MOVE, 0);
+
+
+	return true;
 }
 

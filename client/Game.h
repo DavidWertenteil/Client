@@ -2,8 +2,6 @@
 #include "Utilities.h"
 #include <map>
 
-const float MOVE = 400;
-const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 
 
 class Game
@@ -18,8 +16,9 @@ public:
 
 private:
 	bool updateMove(float);
-	bool legalMove(float);
+	//bool legalMove(float);
 	bool receiveChanges(const sf::Event &event, const Images &images);
+	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images);
 
 	//===========================
 	Maps m_objectsOnBoard;
@@ -30,5 +29,7 @@ private:
 	//Score m_score;
 	sf::TcpSocket m_socket;
 	sf::View& m_view; //
+
+	bool m_receive = true;
 };
 //--------------------------------------------------------------------------

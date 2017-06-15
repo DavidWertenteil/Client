@@ -12,12 +12,11 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	m_background(images.getImage(BACKGROUND)),
 	m_view(view)
 {
-	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	//if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
+	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
-	std::cout << image_id<<'\n';
 	packet << image_id; //שליחה לשרת של התמונה שלי
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
@@ -36,16 +35,19 @@ void Game::receive(const Images &images)
 	Sleep(100);//*********************************
 
 	auto status = m_socket.receive(packet);
+	static int a = 0;
 
 	if (status == sf::TcpSocket::Done)
 	{
 		while (!packet.endOfPacket())//קליטה של כל הדברים שעל הלוח
 		{
-			//std::cout << "while\n";
 			packet >> temp;
 
-			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
+			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) {
 				m_objectsOnBoard.insert(temp, images);
+				++a;
+				std::cout << a << '\n';
+			}
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
@@ -78,23 +80,23 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 		auto speed = TimeClass::instance().RestartClock();
 
 		//תזוזה של השחקן
-		if (event.type == sf::Event::EventType::KeyPressed)
-			if (!updateMove(speed))
-				return m_me->getScore();
+		if (m_receive) // אם הוא קלט את התזוזה הקודמת שלו
+			if (event.type == sf::Event::EventType::KeyPressed)
+				if (!updateMove(speed))
+					return m_me->getScore();
 
 
 		//קבלת מידע מהשרת
 		if (!receiveChanges(event, images))
 			return m_me->getScore();
 
-		m_socket.setBlocking(false);
-
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
 
 		draw(w);
-	}
 
+		//std::cout << m_receive << std::endl;
+	}
 
 	return m_me->getScore();
 }
@@ -109,58 +111,41 @@ bool Game::updateMove(float speed)
 	packet.clear();
 	bool temp = true;
 
-	if (legalMove(speed))
+	static int send = 0;
+
+	//אובייקט זמני
+	std::unique_ptr<MyPlayer> tempMe = std::make_unique<MyPlayer>(*m_me.get());
+	if (tempMe->legalMove(speed))
 	{
 		std::vector<Uint32> deleted;
 
-		temp = m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get());
-		if (m_me->getRadius() < NEW_PLAYER)
+		temp = tempMe->collision(deleted, m_objectsOnBoard, m_players, tempMe.get());
+		if (tempMe->getRadius() < NEW_PLAYER)  // אם מתתי מפצצה
 			temp = false;
 
 		if (!temp)
-			deleted.push_back(m_me->getId()); // אם מתתי
+			deleted.push_back(tempMe->getId()); // אם מתתי
 
-		packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
+		//שליחת אובייקט זמני
+		packet << tempMe->getId() << tempMe->getRadius() << tempMe->getPosition() << deleted;
+		//std::cout <<"temp id "<<  tempMe->getId() <<"\n";
+		//std::cout << "send " << send << '\n';
+		//send++;
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
+
 		if (!temp)
 			Sleep(100);
 
-		m_socket.setBlocking(true);
+		m_me->setRadius(tempMe->getRadius());
+		m_me->setPosition(tempMe->getPosition());
+		m_me->setCenter();
+
+		m_receive = false;
 	}
 
 	return temp;
-}
-//--------------------------------------------------------------------------
-bool Game::legalMove(float speed)
-{
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		if (m_me->getCenter().y - m_me->getRadius() - speed*MOVE < 0)
-			return false;
-		else
-			m_me->move(0, -speed*MOVE);
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		if (m_me->getCenter().y + m_me->getRadius() + speed*MOVE > BOARD_SIZE.y)
-			return false;
-		else
-			m_me->move(0, speed*MOVE);
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		if (m_me->getCenter().x - m_me->getRadius() - speed*MOVE < 0)
-			return false;
-		else
-			m_me->move(-speed*MOVE, 0);
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		if (m_me->getCenter().x + m_me->getRadius() + speed*MOVE > BOARD_SIZE.x)
-			return false;
-		else
-			m_me->move(speed*MOVE, 0);
-
-
-	return true;
 }
 
 //====================================================================================
@@ -170,40 +155,65 @@ bool Game::legalMove(float speed)
 bool Game::receiveChanges(const sf::Event &event, const Images &images)
 {
 	sf::Packet packet;
-	m_socket.receive(packet);
+
+	static int receiv = 0;
+	//std::cout << "receive\n";
+
+	if (m_socket.receive(packet) == sf::TcpSocket::Done)
+	{
+		/*std::cout << "receive " << receive << '\n';
+		receive++;*/
+	}
 
 	while (!packet.endOfPacket())
 	{
 		std::pair<Uint32, sf::Vector2f> temp;
-		packet >> temp;
+		if (!(packet >> temp))
+			continue;
 		std::vector<Uint32> del;
 
-		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
-			m_objectsOnBoard.insert(temp, images);
+	//	std::cout << temp.first << std::endl;
 
+		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
+		{
+			m_objectsOnBoard.insert(temp, images);
+		//	std::cout << "receive " << receiv <<" "<<temp.first<< '\n';
+				//std::cout << temp.first << std::endl;
+			receiv++;
+		}
 		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{
 			if (temp.first == m_me->getId())// השחקן שלי
-				continue;
-			if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
+			{
+				m_receive = true;
+			}
+
+			else if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
 			{
 				m_players[temp.first]->setPosition(temp.second);
-				m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
+				//m_players[temp.first]->setCenter(m_players[temp.first]->getPosition() + Vector2f{ m_players[temp.first]->getRadius(),m_players[temp.first]->getRadius() });
+				m_players[temp.first]->setCenter();
 				if (!m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get()))
 					return false; //אם השחקן הרג אותי
 			}
 			else // שחקן חדש
 			{
-				Uint32 image;
+				addPlayer(temp, packet, images);
+				/*Uint32 image;
 				packet >> image;
-				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));
+				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));*/
 			}
 		}
 	}
-
 	return true;
 }
-
+//------------------------------------------------------------------------------------
+void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images)
+{
+	Uint32 image;
+	packet >> image;
+	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));
+}
 //====================================================================================
 //===========================          PRINT         =================================
 //====================================================================================
@@ -237,8 +247,11 @@ void Game::draw(sf::RenderWindow &w) const
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
 
-	for (auto &x : m_players)
+	for (auto &x : m_players) {
+		//std::cout << "players\n";
+		//std::cout << x.second->getId() << '\n';
 		w.draw(*x.second.get());
+	}
 
 	w.draw(*m_me.get());
 
@@ -278,7 +291,7 @@ bool Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 	}
 
 	//if (getId() != me->getId()) //בדיקה של שחקן נוכחי מול השחקן שלי
-	if(dynamic_cast<OtherPlayers*>(this))
+	if (dynamic_cast<OtherPlayers*>(this))
 	{
 		if (circlesCollide(me))
 			if (getRadius() > me->getRadius())
