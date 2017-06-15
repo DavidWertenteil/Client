@@ -46,6 +46,7 @@ const Uint32 BOMBS_UPPER = 10000;
 const float MOVE = 800;
 const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 
+
 class Circle :public CircleShape
 {
 public:
