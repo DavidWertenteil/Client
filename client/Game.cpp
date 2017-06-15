@@ -17,7 +17,6 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
-	std::cout << image_id << '\n';
 	packet << image_id; //שליחה לשרת של התמונה שלי
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
@@ -36,6 +35,7 @@ void Game::receive(const Images &images)
 	Sleep(100);//*********************************
 
 	auto status = m_socket.receive(packet);
+	static int a = 0;
 
 	if (status == sf::TcpSocket::Done)
 	{
@@ -43,8 +43,11 @@ void Game::receive(const Images &images)
 		{
 			packet >> temp;
 
-			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
+			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) {
 				m_objectsOnBoard.insert(temp, images);
+				++a;
+				std::cout << a << '\n';
+			}
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
@@ -91,6 +94,8 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 			return m_me->getScore();
 
 		draw(w);
+
+		//std::cout << m_receive << std::endl;
 	}
 
 	return m_me->getScore();
@@ -102,11 +107,11 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 //מחזיר שקר אם מתתי
 bool Game::updateMove(float speed)
 {
-	static int x = 0;
-
 	sf::Packet packet;
 	packet.clear();
 	bool temp = true;
+
+	static int send = 0;
 
 	//אובייקט זמני
 	std::unique_ptr<MyPlayer> tempMe = std::make_unique<MyPlayer>(*m_me.get());
@@ -114,7 +119,7 @@ bool Game::updateMove(float speed)
 	{
 		std::vector<Uint32> deleted;
 
-		temp = tempMe->collision(deleted, m_objectsOnBoard, m_players, tempMe.get());	
+		temp = tempMe->collision(deleted, m_objectsOnBoard, m_players, tempMe.get());
 		if (tempMe->getRadius() < NEW_PLAYER)  // אם מתתי מפצצה
 			temp = false;
 
@@ -123,12 +128,13 @@ bool Game::updateMove(float speed)
 
 		//שליחת אובייקט זמני
 		packet << tempMe->getId() << tempMe->getRadius() << tempMe->getPosition() << deleted;
+		//std::cout <<"temp id "<<  tempMe->getId() <<"\n";
+		//std::cout << "send " << send << '\n';
+		//send++;
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
 
-		x++;
-		std::cout << x<<'\n';
 		if (!temp)
 			Sleep(100);
 
@@ -150,19 +156,37 @@ bool Game::receiveChanges(const sf::Event &event, const Images &images)
 {
 	sf::Packet packet;
 
+	static int receiv = 0;
+	//std::cout << "receive\n";
+
+	if (m_socket.receive(packet) == sf::TcpSocket::Done)
+	{
+		/*std::cout << "receive " << receive << '\n';
+		receive++;*/
+	}
+
 	while (!packet.endOfPacket())
 	{
 		std::pair<Uint32, sf::Vector2f> temp;
-		packet >> temp;
+		if (!(packet >> temp))
+			continue;
 		std::vector<Uint32> del;
 
-		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
-			m_objectsOnBoard.insert(temp, images);
+	//	std::cout << temp.first << std::endl;
 
+		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
+		{
+			m_objectsOnBoard.insert(temp, images);
+		//	std::cout << "receive " << receiv <<" "<<temp.first<< '\n';
+				//std::cout << temp.first << std::endl;
+			receiv++;
+		}
 		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{
 			if (temp.first == m_me->getId())// השחקן שלי
+			{
 				m_receive = true;
+			}
 
 			else if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
 			{
