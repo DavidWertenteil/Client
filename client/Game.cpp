@@ -87,6 +87,8 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 		if (!receiveChanges(event, images))
 			return m_me->getScore();
 
+		m_socket.setBlocking(false);
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
 
@@ -124,6 +126,8 @@ bool Game::updateMove(float speed)
 			std::cout << "no sending data\n";
 		if (!temp)
 			Sleep(100);
+
+		m_socket.setBlocking(true);
 	}
 
 	return temp;
