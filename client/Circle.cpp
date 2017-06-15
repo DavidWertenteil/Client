@@ -12,13 +12,20 @@ MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position)
 	setCenter(position + Vector2f{ NEW_PLAYER ,NEW_PLAYER });
 	setPosition(position);
 	Circle::setTexture(&image);
-
 }
 //--------------------------------------------------------------------------------------
 MyPlayer::MyPlayer()
 {
 	setRadius(NEW_PLAYER);
 	setCenter({ NEW_PLAYER ,NEW_PLAYER });
+}
+//-------------------------------------------------------------------------------------
+MyPlayer::MyPlayer(const MyPlayer& p)
+{
+	setPosition(p.getPosition());
+	setCenter(p.getCenter());
+	setRadius(p.getRadius());
+	m_id = p.getId();
 }
 //======================================================================================
 OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, float radius, sf::Vector2f position)

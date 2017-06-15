@@ -86,6 +86,7 @@ public:
 
 protected:
 	unsigned m_score = 0;
+	bool m_live = true;
 };
 //-------------------------------------
 class MyPlayer :public Player
@@ -93,15 +94,13 @@ class MyPlayer :public Player
 public:
 	MyPlayer();
 	MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position = { 0.f,0.f });
-	//MyPlayer(const MyPlayer& p) :MyPlayer(p.getId(), p.getCenter(), p.getScore()) {}
-	MyPlayer(const MyPlayer& p)
-	{
-		setPosition(p.getPosition());
-		setCenter(p.getCenter());
-		setRadius(p.getRadius());
-		m_id = p.getId();
-	}
-
+	MyPlayer(const MyPlayer& p);
+	//{
+	//	setPosition(p.getPosition());
+	//	setCenter(p.getCenter());
+	//	setRadius(p.getRadius());
+	//	m_id = p.getId();
+	//}
 
 	bool legalMove(float speed);
 	

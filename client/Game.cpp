@@ -94,8 +94,6 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 			return m_me->getScore();
 
 		draw(w);
-
-		//std::cout << m_receive << std::endl;
 	}
 
 	return m_me->getScore();
