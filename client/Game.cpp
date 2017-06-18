@@ -13,11 +13,11 @@ Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& 
 	m_view(view)
 {
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
-	packet << image_id; //שליחה לשרת של התמונה שלי
+	packet << image_id << name; //שליחה לשרת של התמונה שלי
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
 
@@ -30,7 +30,7 @@ void Game::receive(const Images &images, const Fonts &fonts)
 	sf::Packet packet;
 	std::pair <Uint32, sf::Vector2f> temp;
 	Uint32 image;
-	sf::String name;
+	sf::String name, s = "asd";
 	float radius;
 
 	m_socket.setBlocking(true);//**********************************
@@ -61,6 +61,8 @@ void Game::receive(const Images &images, const Fonts &fonts)
 	m_me->setTexture(images[image]);
 	m_me->setPosition(temp.second);
 	m_me->setCenter(temp.second + Vector2f{ NEW_PLAYER,NEW_PLAYER });
+
+	std::cout << std::string(name) << '\n';
 }
 
 //====================================================================================
@@ -84,7 +86,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images, const Fonts &font
 				updateMove(speed);
 
 		//קבלת מידע מהשרת
-		receiveChanges(event, images, fonts);
+		receiveChanges(images, fonts);
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
@@ -129,7 +131,7 @@ void Game::updateMove(float speed)
 //===========================      RECEIVE DATA      =================================
 //====================================================================================
 //מחזיר שקר אם מתתי
-void Game::receiveChanges(const sf::Event &event, const Images &images, const Fonts &fonts)
+void Game::receiveChanges(const Images &images, const Fonts &fonts)
 {
 	sf::Packet packet;
 

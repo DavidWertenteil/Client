@@ -16,7 +16,7 @@ public:
 
 private:
 	void updateMove(float);
-	void receiveChanges(const sf::Event &event, const Images &images, const Fonts &fonts);
+	void receiveChanges(const Images &images, const Fonts &fonts);
 	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images, const Fonts &fonts);
 	//===========================
 	Maps m_objectsOnBoard;
