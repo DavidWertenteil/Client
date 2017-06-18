@@ -102,7 +102,7 @@ class MyPlayer :public Player
 {
 public:
 	MyPlayer();
-	MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font, sf::Vector2f position = { 0.f,0.f },const sf::String name = "no name");
+	MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font,const sf::Vector2f& position,const sf::String& name);
 
 	bool legalMove(float speed);
 	
@@ -115,7 +115,7 @@ class OtherPlayers :public Player
 {
 public:
 	OtherPlayers(const OtherPlayers& p) :Player(p) {}
-	OtherPlayers(Uint32 id, const sf::Texture &image, const sf::Font &font, float radius, sf::Vector2f position, const sf::String &name = "no name");
+	OtherPlayers(Uint32 id, const sf::Texture &image, const sf::Font &font, float radius, sf::Vector2f position, const sf::String &name);
 
 	void f() override {}
 };

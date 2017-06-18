@@ -30,6 +30,7 @@ void Game::receive(const Images &images, const Fonts &fonts)
 	sf::Packet packet;
 	std::pair <Uint32, sf::Vector2f> temp;
 	Uint32 image;
+	sf::String name;
 	float radius;
 
 	m_socket.setBlocking(true);//**********************************
@@ -48,8 +49,8 @@ void Game::receive(const Images &images, const Fonts &fonts)
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
-				packet >> radius >> image;
-				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], radius, temp.second));
+				packet >> radius >> image>> name;
+				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], radius, temp.second, name));
 			}
 		}
 	}
@@ -166,8 +167,9 @@ void Game::receiveChanges(const sf::Event &event, const Images &images, const Fo
 void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images, const Fonts &fonts)
 {
 	Uint32 image;
-	packet >> image;
-	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], NEW_PLAYER, temp.second));
+	sf::String name;
+	packet >> image>>name;
+	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], NEW_PLAYER, temp.second,name));
 }
 //------------------------------------------------------------------------------------
 void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players)

@@ -5,7 +5,7 @@
 //====================================================================================
 //===========================      CONSTRACTORS      =================================
 //====================================================================================
-MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font, sf::Vector2f position, const sf::String name)
+MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font,const sf::Vector2f& position, const sf::String& name)
 	:Player(id)
 {
 	setRadius(NEW_PLAYER);

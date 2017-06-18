@@ -126,7 +126,7 @@ void SettingsScreen::setTextInNameBox(const sf::Font& font) {
 	m_textDef.setPosition(sf::Vector2f{ x,y });
 	m_theName.setPosition(m_textDef.getPosition());
 
-	m_theName.setString(m_name);
+	m_theName.setString("unknown");
 	m_textDef.setString(m_defaultStr);
 }
 //===============================================================================================================
@@ -141,7 +141,7 @@ void SettingsScreen::enterName(sf::Event& event) {
 	else if (event.text.unicode == 8 && m_name.getSize() > 0)
 		m_name.erase(m_name.getSize() - 1, m_name.getSize());
 
-	m_theName.setString(m_name);
+	m_theName.setString((m_name.isEmpty())?"unknown": m_name);
 
 }
 
