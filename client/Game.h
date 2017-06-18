@@ -15,11 +15,9 @@ public:
 	void setView(sf::RenderWindow &w) const;
 
 private:
-	bool updateMove(float);
-	//bool legalMove(float);
-	bool receiveChanges(const sf::Event &event, const Images &images);
+	void updateMove(float);
+	void receiveChanges(const sf::Event &event, const Images &images);
 	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images);
-
 	//===========================
 	Maps m_objectsOnBoard;
 	std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> m_players;
@@ -28,8 +26,9 @@ private:
 	//m_miniMap;
 	//Score m_score;
 	sf::TcpSocket m_socket;
-	sf::View& m_view; //
+	sf::View& m_view; 
 
 	bool m_receive = true;
 };
 //--------------------------------------------------------------------------
+	void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players);

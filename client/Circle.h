@@ -72,17 +72,20 @@ public:
 	Player() = default;
 	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0) :Circle(id, c) { setPointCount(100); }
 	Player(const Player& p) :Player(p.getId(), p.getCenter(), p.getScore()) {}
-
-	bool collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
-	bool checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
+	
+	void collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
+	void checkPlayers(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	void checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard);
 	bool circlesCollide(const Circle* p) const;
 
 	void newRadius(Circle *c);
 	void move(float x, float y);
 
-	void setScore(Uint32 radius) { m_score += unsigned(radius); }
+	void setScore(Uint32 radius) { m_score = unsigned(radius); }
 	unsigned getScore() const { return unsigned(getRadius()); }
+
+	bool getLive() const { return m_live; }
+	void setLive(bool l) { m_live = l; }
 
 protected:
 	unsigned m_score = 0;
@@ -95,12 +98,6 @@ public:
 	MyPlayer();
 	MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position = { 0.f,0.f });
 	MyPlayer(const MyPlayer& p);
-	//{
-	//	setPosition(p.getPosition());
-	//	setCenter(p.getCenter());
-	//	setRadius(p.getRadius());
-	//	m_id = p.getId();
-	//}
 
 	bool legalMove(float speed);
 	

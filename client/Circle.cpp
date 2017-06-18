@@ -61,10 +61,16 @@ Bomb::Bomb(Uint32 id, sf::Vector2f position, const sf::Texture& tex) :FoodAndBom
 //====================================================================================
 void Player::newRadius(Circle *c)
 {
-	if (dynamic_cast<Food*>(c))
+	if (dynamic_cast<Food*>(c) || dynamic_cast<Player*>(c))
+	{
 		setRadius(getRadius() + c->getRadius() / 10);
+		setScore(Uint32(getScore() + c->getRadius()));
+	}
 	else if (dynamic_cast<Bomb*>(c))
+	{
 		setRadius(getRadius() / 2);
+		setScore(Uint32(getScore() / 2));
+	}
 }
 //-----------------------------------------------------
 void Player::move(float x, float y)
