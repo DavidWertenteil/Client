@@ -7,13 +7,13 @@
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, Uint32 image_id, sf::View& view)
+Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& view,const sf::String &name)
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(images.getImage(BACKGROUND)),
 	m_view(view)
 {
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect("10.2.15.207", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting\n";
 
 	sf::Packet packet;
@@ -21,10 +21,11 @@ Game::Game(const Images &images, Uint32 image_id, sf::View& view)
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
 
-	receive(images);//קליטת מידע מהשרת
+	receive(images, fonts);//קליטת מידע מהשרת
+	m_me->editText(fonts[SETTINGS], name);
 }
 //--------------------------------------------------------------------------
-void Game::receive(const Images &images)
+void Game::receive(const Images &images, const Fonts &fonts)
 {
 	sf::Packet packet;
 	std::pair <Uint32, sf::Vector2f> temp;
@@ -35,7 +36,6 @@ void Game::receive(const Images &images)
 	Sleep(100);//*********************************
 
 	auto status = m_socket.receive(packet);
-	static int a = 0;
 
 	if (status == sf::TcpSocket::Done)
 	{
@@ -43,16 +43,13 @@ void Game::receive(const Images &images)
 		{
 			packet >> temp;
 
-			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) {
+			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
 				m_objectsOnBoard.insert(temp, images);
-				++a;
-				std::cout << a << '\n';
-			}
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
 				packet >> radius >> image;
-				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], radius, temp.second));
+				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], radius, temp.second));
 			}
 		}
 	}
@@ -68,7 +65,7 @@ void Game::receive(const Images &images)
 //====================================================================================
 //================================     PLAY     ======================================
 //====================================================================================
-unsigned Game::play(sf::RenderWindow &w, const Images &images)
+unsigned Game::play(sf::RenderWindow &w, const Images &images, const Fonts &fonts)
 {
 	m_socket.setBlocking(false);
 
@@ -86,7 +83,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images)
 				updateMove(speed);
 
 		//קבלת מידע מהשרת
-		receiveChanges(event, images);
+		receiveChanges(event, images, fonts);
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
@@ -131,7 +128,7 @@ void Game::updateMove(float speed)
 //===========================      RECEIVE DATA      =================================
 //====================================================================================
 //מחזיר שקר אם מתתי
-void Game::receiveChanges(const sf::Event &event, const Images &images)
+void Game::receiveChanges(const sf::Event &event, const Images &images, const Fonts &fonts)
 {
 	sf::Packet packet;
 
@@ -159,18 +156,18 @@ void Game::receiveChanges(const sf::Event &event, const Images &images)
 			}
 
 			else // שחקן חדש
-				addPlayer(temp, packet, images);
+				addPlayer(temp, packet, images, fonts);
 		}
 	}
 
 	deleteDeadPlayer(m_players);
 }
 //------------------------------------------------------------------------------------
-void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images)
+void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images, const Fonts &fonts)
 {
 	Uint32 image;
 	packet >> image;
-	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], NEW_PLAYER, temp.second));
+	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], NEW_PLAYER, temp.second));
 }
 //------------------------------------------------------------------------------------
 void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players)
@@ -203,21 +200,27 @@ void Game::setView(sf::RenderWindow &w) const
 //--------------------------------------------------------------------------
 void Game::draw(sf::RenderWindow &w) const
 {
+	w.clear();
+	//-------------------- רקע ---------------------
 	setView(w);
 
-	w.clear();
 	w.draw(m_background);
 
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
 
-	for (auto &x : m_players) {
-		//std::cout << "players\n";
-		//std::cout << x.second->getId() << '\n';
+	for (auto &x : m_players)
+	{
 		w.draw(*x.second.get());
+		w.draw(x.second->getName());
 	}
 
 	w.draw(*m_me.get());
+	w.draw(m_me->getName());
+	////------------------- ניקוד --------------------
+	//sf::View scoreView;
+	//scoreView.reset(sf::FloatRect{ 0.f, float(SCREEN_HEIGHT / 5 * 4), float(SCREEN_WIDTH), float(SCREEN_HEIGHT) });
+
 
 	w.display();
 
@@ -230,11 +233,11 @@ void Game::draw(sf::RenderWindow &w) const
 // מחזיר שקר אם מתתי
 void Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
 {
-	checkPlayers( players, me);
+	checkPlayers(deleted, players, me);
 	checkFoodAndBomb(deleted, objectsOnBoard);
 }
 //--------------------------------------------------------------------------
-void Player::checkPlayers(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
+void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
 {
 	for (auto &player : players)
 	{
@@ -246,6 +249,7 @@ void Player::checkPlayers(std::unordered_map<Uint32, std::unique_ptr<OtherPlayer
 			{
 				newRadius(player.second.get());
 				player.second->setLive(false); //מחיקה, השחקן יודע שהוא מת
+				deleted.push_back(player.first);
 			}
 			else
 				m_live = false; // אם השחקן שקרא לפונקציה מת

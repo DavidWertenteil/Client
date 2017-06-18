@@ -100,8 +100,8 @@ void Controller::play(sf::RenderWindow& window) {
 	auto menu = dynamic_cast<Start*>(m_Menus[START_GAME].get());
 	
 	menu->load(window);//
-	Game game{ m_images,/* m_fonts,*/it->getSelectedImage() /*,it->getName() */ ,view };
-	menu->gameOver(window, view, game.play(window, m_images));// display score screen
+	Game game{ m_images, m_fonts,it->getSelectedImage()  ,view ,it->getName() };
+	menu->gameOver(window, view, game.play(window, m_images, m_fonts));// display score screen
 
 	m_Menus.restartMenu();
 }

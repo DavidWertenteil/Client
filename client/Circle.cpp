@@ -5,13 +5,15 @@
 //====================================================================================
 //===========================      CONSTRACTORS      =================================
 //====================================================================================
-MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, sf::Vector2f position)
+MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font, sf::Vector2f position, const sf::String name)
 	:Player(id)
 {
 	setRadius(NEW_PLAYER);
 	setCenter(position + Vector2f{ NEW_PLAYER ,NEW_PLAYER });
 	setPosition(position);
 	Circle::setTexture(&image);
+
+	editText(font, name);
 }
 //--------------------------------------------------------------------------------------
 MyPlayer::MyPlayer()
@@ -19,22 +21,16 @@ MyPlayer::MyPlayer()
 	setRadius(NEW_PLAYER);
 	setCenter({ NEW_PLAYER ,NEW_PLAYER });
 }
-//-------------------------------------------------------------------------------------
-MyPlayer::MyPlayer(const MyPlayer& p)
-{
-	setPosition(p.getPosition());
-	setCenter(p.getCenter());
-	setRadius(p.getRadius());
-	m_id = p.getId();
-}
 //======================================================================================
-OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, float radius, sf::Vector2f position)
+OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, const sf::Font &font, float radius, sf::Vector2f position, const sf::String &name)
 	:Player(id)
 {
 	setRadius(radius);
 	setPosition(position);
 	setCenter(position + Vector2f{ radius, radius });
 	setTexture(&image);
+
+	editText(font, name);
 }
 //======================================================================================
 Food::Food(Uint32 id, sf::Vector2f position, const sf::Texture& t) :FoodAndBomb(id, position)
@@ -56,6 +52,7 @@ Bomb::Bomb(Uint32 id, sf::Vector2f position, const sf::Texture& tex) :FoodAndBom
 	setTexture(&tex);
 }
 
+
 //====================================================================================
 //===========================        FUNCTION        =================================
 //====================================================================================
@@ -71,12 +68,22 @@ void Player::newRadius(Circle *c)
 		setRadius(getRadius() / 2);
 		setScore(Uint32(getScore() / 2));
 	}
+
+	m_name.setCharacterSize(unsigned(getRadius() / 2));
 }
 //-----------------------------------------------------
 void Player::move(float x, float y)
 {
 	sf::CircleShape::move(x, y);
 	setCenter(getPosition() + Vector2f{ getRadius(), getRadius() });
+	m_name.setOrigin(m_name.getGlobalBounds().width / 2, m_name.getGlobalBounds().height / 2);
+	m_name.setPosition(getCenter());
+}
+//-----------------------------------------------------
+void Player::setPosition(const Vector2f &position)
+{
+	sf::CircleShape::setPosition(position);
+	m_name.setPosition(getCenter());
 }
 //-----------------------------------------------------
 float distance(const sf::Vector2f &p1, const sf::Vector2f &p2)
@@ -118,5 +125,18 @@ bool MyPlayer::legalMove(float speed)
 
 
 	return true;
+}
+//--------------------------------------------------------------------------------------
+void Player::editText(const sf::Font &font, const sf::String name)
+{
+	m_name.setFont(font);
+	m_name.setCharacterSize(unsigned(getRadius() / 2));
+	m_name.setString(name);
+	m_name.setFillColor(sf::Color::White);
+	m_name.setOutlineColor(sf::Color::Black);
+	m_name.setOutlineThickness(2);
+	m_name.setStyle(sf::Text::Bold);
+	m_name.setOrigin(m_name.getGlobalBounds().width / 2, m_name.getGlobalBounds().height / 2);
+	m_name.setPosition(getCenter());
 }
 
