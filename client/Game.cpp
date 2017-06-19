@@ -5,16 +5,25 @@
 #include <Windows.h>
 
 //====================================================================================
+//================================  Score  c-tor =====================================
+//====================================================================================
+Score::Score(const Fonts &fonts) :sf::Text("score: " + std::to_string(NEW_PLAYER), fonts[SCORE], 40) {
+	setPosition({ 10, float(sf::VideoMode::getDesktopMode().height) - getGlobalBounds().height-10 });
+	setFillColor(sf::Color(105, 105, 105));
+}
+//====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& view,const sf::String &name)
+Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& view, const sf::String &name)
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(images.getImage(BACKGROUND)),
-	m_view(view)
+	m_view(view),
+	m_score(fonts)
 {
+
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
 	if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
-		std::cout << "no connecting\n";
+		std::cout << "no connecting" << std::endl;
 
 	sf::Packet packet;
 	packet << image_id << name; //שליחה לשרת של התמונה שלי
@@ -24,6 +33,7 @@ Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& 
 	receive(images, fonts);//קליטת מידע מהשרת
 	m_me->editText(fonts[SETTINGS], name);
 }
+//=============================================================================================================
 //--------------------------------------------------------------------------
 void Game::receive(const Images &images, const Fonts &fonts)
 {
@@ -49,7 +59,7 @@ void Game::receive(const Images &images, const Fonts &fonts)
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
-				packet >> radius >> image>> name;
+				packet >> radius >> image >> name;
 				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], radius, temp.second, name));
 			}
 		}
@@ -90,7 +100,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images, const Fonts &font
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
-
+		m_score.setScore(m_me->getScore());
 		draw(w);
 	}
 
@@ -170,8 +180,8 @@ void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &pa
 {
 	Uint32 image;
 	sf::String name;
-	packet >> image>>name;
-	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], NEW_PLAYER, temp.second,name));
+	packet >> image >> name;
+	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], NEW_PLAYER, temp.second, name));
 }
 //------------------------------------------------------------------------------------
 void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players)
@@ -207,7 +217,6 @@ void Game::draw(sf::RenderWindow &w) const
 	w.clear();
 	//-------------------- רקע ---------------------
 	setView(w);
-
 	w.draw(m_background);
 
 	for (auto &x : m_objectsOnBoard)
@@ -221,6 +230,9 @@ void Game::draw(sf::RenderWindow &w) const
 
 	w.draw(*m_me.get());
 	w.draw(m_me->getName());
+	m_view.setCenter(float(sf::VideoMode::getDesktopMode().width/2),float(sf::VideoMode::getDesktopMode().height / 2));
+	w.setView(m_view);
+	w.draw(m_score);
 	////------------------- ניקוד --------------------
 	//sf::View scoreView;
 	//scoreView.reset(sf::FloatRect{ 0.f, float(SCREEN_HEIGHT / 5 * 4), float(SCREEN_WIDTH), float(SCREEN_HEIGHT) });

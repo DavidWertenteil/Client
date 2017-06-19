@@ -6,6 +6,8 @@ enum fonts {
 	MENU,
 	SETTINGS,
 	HELP,
+	NAME,
+	SCORE,
 	NUMBRE_OF_FONTS
 };
 

@@ -37,7 +37,7 @@ void tempScreen::display(sf::RenderWindow& w) const{
 
 //==================================================================================
 EndLevel::EndLevel(const Fonts& font) 
-	:tempScreen(sf::Text{ "GAME OVER",font[LOGO],150 }, sf::Text{ "Your score is: ",font[MENU],50 }) {
+	:tempScreen(sf::Text{ "GAME OVER",font[LOGO],150 }, sf::Text{ "Your score is: ",font[SCORE],50 }) {
 	m_title.setFillColor(sf::Color::Yellow);
 	m_title.setOutlineThickness(8);
 	m_title.setOutlineColor(sf::Color(220, 220, 220, 100));
@@ -55,7 +55,7 @@ void EndLevel::endLevelScreen(sf::RenderWindow& w, sf::View& v, unsigned score) 
 
 //==================================================================================
 loading::loading(const Fonts& font)
-	:tempScreen(sf::Text{ "loading",font[LOGO],80 }, sf::Text{ "plaese wait",font[MENU],30 }) {
+	:tempScreen(sf::Text{ "loading",font[LOGO],80 }, sf::Text{ "plaese wait",font[NAME],30 }) {
 	m_title.setFillColor(sf::Color(190, 190, 190));
 	m_info.setFillColor(sf::Color(255, 182, 193));
 }
