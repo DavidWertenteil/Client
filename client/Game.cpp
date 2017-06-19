@@ -23,8 +23,8 @@ Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& 
 	m_minimapBackground(BOARD_SIZE)
 {
 
-	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+	//if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
 		std::cout << "no connecting" << std::endl;
 
 	sf::Packet packet;

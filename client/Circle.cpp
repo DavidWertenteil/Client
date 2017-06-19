@@ -2,22 +2,32 @@
 #include "Circle.h"
 
 
+
+
 //====================================================================================
 //===========================      CONSTRACTORS      =================================
 //====================================================================================
-MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font,const sf::Vector2f& position, const sf::String& name)
+Player::Player(Uint32 id, Vector2f c, unsigned s) :Circle(id, c) {
+	setPointCount(100); 
+	setOutlineThickness(4);
+	setOutlineColor(sf::Color::Black);
+}
+//======================== MyPlayer c-tor ==================================================
+
+MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font, const sf::Vector2f& position, const sf::String& name)
 	:Player(id)
 {
 	setRadius(NEW_PLAYER);
 	setCenter(position + Vector2f{ NEW_PLAYER ,NEW_PLAYER });
 	setPosition(position);
 	Circle::setTexture(&image);
-
 	editText(font, name);
 }
 //--------------------------------------------------------------------------------------
 MyPlayer::MyPlayer()
 {
+	setOutlineThickness(4);
+	setOutlineColor(sf::Color::Black);
 	setRadius(NEW_PLAYER);
 	setCenter({ NEW_PLAYER ,NEW_PLAYER });
 }
@@ -39,8 +49,6 @@ Food::Food(Uint32 id, sf::Vector2f position, const sf::Texture& t) :FoodAndBomb(
 	setCenter(position);
 	setOrigin(FOOD_RADIUS, FOOD_RADIUS);
 	setFillColor(sf::Color(rand() % 155 + 150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
-	//setOutlineColor(sf::Color(getFillColor().r, getFillColor().g, getFillColor().b, 100));
-	//setOutlineThickness(4);
 	setTexture(&t);
 }
 //======================================================================================
@@ -99,33 +107,24 @@ bool Player::circlesCollide(const Circle* p) const
 //-----------------------------------------------------
 bool MyPlayer::legalMove(float speed)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		if (getCenter().y - getRadius() - speed*MOVE < 0)
-			return false;
-		else
-			move(0, -speed*MOVE);
+	sf::Vector2f moveTo{0,0};
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		if (getCenter().y + getRadius() + speed*MOVE > BOARD_SIZE.y)
-			return false;
-		else
-			move(0, speed*MOVE);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && getCenter().y - getRadius() - speed*MOVE >= 0)
+		moveTo += { 0, -speed*MOVE };
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		if (getCenter().x - getRadius() - speed*MOVE < 0)
-			return false;
-		else
-			move(-speed*MOVE, 0);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && getCenter().y + getRadius() + speed*MOVE <= BOARD_SIZE.y)
+		moveTo += { 0, speed*MOVE };
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		if (getCenter().x + getRadius() + speed*MOVE > BOARD_SIZE.x)
-			return false;
-		else
-			move(speed*MOVE, 0);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && getCenter().x - getRadius() - speed*MOVE >= 0)
+		moveTo += { -speed*MOVE, 0 };
 
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && getCenter().x + getRadius() + speed*MOVE <= BOARD_SIZE.x)
+		moveTo += { speed*MOVE, 0 };
 
-	return true;
-}
+	move(moveTo.x, moveTo.y);
+
+	return moveTo != sf::Vector2f{ 0,0 };
+} 
 //--------------------------------------------------------------------------------------
 void Player::editText(const sf::Font &font, const sf::String name)
 {

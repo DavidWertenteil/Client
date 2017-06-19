@@ -71,9 +71,10 @@ class Player :public Circle
 {
 public:
 	Player() = default;
-	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0) :Circle(id, c) { setPointCount(100); }
+	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0); 
 	Player(const Player& p) :Player(p.getId(), p.getCenter(), p.getScore()) {}
 	
+
 	void collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	void checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me);
 	void checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard);
