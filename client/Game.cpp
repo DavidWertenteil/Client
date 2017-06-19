@@ -8,7 +8,7 @@
 //================================  Score  c-tor =====================================
 //====================================================================================
 Score::Score(const Fonts &fonts) :sf::Text("score: " + std::to_string(NEW_PLAYER), fonts[SCORE], 40) {
-	setPosition({ 10, float(sf::VideoMode::getDesktopMode().height) - getGlobalBounds().height-10 });
+	setPosition({ 10, float(sf::VideoMode::getDesktopMode().height) - getGlobalBounds().height - 10 });
 	setFillColor(sf::Color(105, 105, 105));
 }
 //====================================================================================
@@ -18,7 +18,9 @@ Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& 
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(images.getImage(BACKGROUND)),
 	m_view(view),
-	m_score(fonts)
+	m_score(fonts),
+	m_minimap(sf::FloatRect{ 0, 0, float(BOARD_SIZE.x), float(BOARD_SIZE.y) }),
+	m_minimapBackground(BOARD_SIZE)
 {
 
 	//if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
@@ -32,6 +34,9 @@ Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& 
 
 	receive(images, fonts);//קליטת מידע מהשרת
 	m_me->editText(fonts[SETTINGS], name);
+
+	m_minimap.setViewport(sf::FloatRect{ 0,0,0.15f, 0.2f });
+	m_minimapBackground.setFillColor(sf::Color(105, 105, 105, 150));
 }
 //=============================================================================================================
 //--------------------------------------------------------------------------
@@ -101,7 +106,7 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images, const Fonts &font
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
 		m_score.setScore(m_me->getScore());
-		draw(w);
+		display(w);
 	}
 
 	return m_me->getScore();
@@ -192,7 +197,7 @@ void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>&
 //====================================================================================
 //===========================          PRINT         =================================
 //====================================================================================
-void Game::setView(sf::RenderWindow &w) const
+sf::Vector2f Game::setView(sf::RenderWindow &w) const
 {
 	sf::Vector2f pos{ float(SCREEN_WIDTH) / 2 , float(SCREEN_HEIGHT) / 2 };
 
@@ -208,17 +213,10 @@ void Game::setView(sf::RenderWindow &w) const
 		else
 			pos.y = m_me->getCenter().y;
 
-	m_view.setCenter(pos);
-	w.setView(m_view);
+	return pos;
 }
-//--------------------------------------------------------------------------
-void Game::draw(sf::RenderWindow &w) const
-{
-	w.clear();
-	//-------------------- רקע ---------------------
-	setView(w);
-	w.draw(m_background);
-
+//=============================================================================================
+void Game::draw(sf::RenderWindow &w) const {
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
 
@@ -227,15 +225,27 @@ void Game::draw(sf::RenderWindow &w) const
 		w.draw(*x.second.get());
 		w.draw(x.second->getName());
 	}
-
 	w.draw(*m_me.get());
+}
+//--------------------------------------------------------------------------
+void Game::display(sf::RenderWindow &w)
+{
+	w.clear();
+	//-------------------- רקע ---------------------
+	auto pos = setView(w);
+	m_view.setCenter(pos);
+	w.setView(m_view);
+	w.draw(m_background);
+	draw(w);
 	w.draw(m_me->getName());
-	m_view.setCenter(float(sf::VideoMode::getDesktopMode().width/2),float(sf::VideoMode::getDesktopMode().height / 2));
+	
+	w.setView(m_minimap);
+	w.draw(m_minimapBackground);
+	draw(w);
+	////------------------- ניקוד --------------------
+	m_view.setCenter(float(SCREEN_WIDTH / 2), float(SCREEN_HEIGHT / 2));
 	w.setView(m_view);
 	w.draw(m_score);
-	////------------------- ניקוד --------------------
-	//sf::View scoreView;
-	//scoreView.reset(sf::FloatRect{ 0.f, float(SCREEN_HEIGHT / 5 * 4), float(SCREEN_WIDTH), float(SCREEN_HEIGHT) });
 
 
 	w.display();

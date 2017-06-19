@@ -9,7 +9,6 @@ public:
 	~Score() {}
 	void setScore(unsigned s) { setString("score: " + std::to_string(s)); }
 };
-//class topScore:public std::vector
 //============================================================================================
 class Game
 {
@@ -18,8 +17,9 @@ public:
 	void receive(const Images &images, const Fonts &fonts);
 	unsigned play(sf::RenderWindow &w, const Images &images, const Fonts &fonts);
 
-	void draw(sf::RenderWindow &w) const;
-	void setView(sf::RenderWindow &w) const;
+	void draw(sf::RenderWindow &w)const;
+	void display(sf::RenderWindow &w);
+	sf::Vector2f setView(sf::RenderWindow &w)const;
 
 private:
 	void updateMove(float);
@@ -30,10 +30,11 @@ private:
 	std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> m_players;
 	sf::Sprite m_background;
 	std::unique_ptr<MyPlayer> m_me;
-	//m_miniMap;
 	Score m_score;
 	sf::TcpSocket m_socket;
 	sf::View& m_view;
+	sf::View m_minimap;
+	sf::RectangleShape m_minimapBackground;
 
 	bool m_receive = true;
 };
