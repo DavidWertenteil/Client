@@ -23,5 +23,4 @@ private:
 
 	sf::Music m_music;
 	Menu m_Menus; //display background and menu
-	std::vector<std::unique_ptr<ScreenInfo>> m_screeninfo;//the screen information that is displayed by the bar
 };

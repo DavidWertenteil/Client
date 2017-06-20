@@ -58,7 +58,7 @@ Controller::Controller() :m_Menus() {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io", sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io");// , sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -78,27 +78,20 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 
 	while (window.isOpen())
 	{
-		//if (m_Menus[START_GAME]->getPressed())
-		//	play(window);
-
-		events(window);  //get event from user
 		window.clear();
+		m_Menus.restartMenu();
 		window.draw(Images::instance().getImage(BACKGROUND1));//background image of openning screen
 		window.draw(m_Menus.getRec());// background menu rectangle
+		events(window);  //get event from user
 		draw(window, m_Menus);		  // buttons of menu
-		m_screeninfo[(*m_Menus.getIteratorToCurrentPressed())->getPlace()]->display(window);
 		window.display();
 	}
 }
-
-
 //======================= The events of menu screen ===================================
 void Controller::events(sf::RenderWindow& window) {
 
-	static sf::Event event;
+	sf::Event event;
 	window.pollEvent(event);
-	static bool pressed{ false };
-	bool settings = (*m_Menus.getIteratorToCurrentPressed())->getPlace() == SETTINGS_SCREEN;
 
 	switch (event.type)
 	{
@@ -106,31 +99,29 @@ void Controller::events(sf::RenderWindow& window) {
 		window.close();
 		break;
 	case sf::Event::MouseButtonPressed:
-		//if it is in setting screen
-		if (settings) {
-			//if pressed on name box
-			pressed = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get())->pressed({ float(event.mouseButton.x),float(event.mouseButton.y) });
-			m_screeninfo[SETTINGS_SCREEN]->mouseEventButton({ float(event.mouseButton.x),float(event.mouseButton.y) }, true);
-		}
 		m_Menus.mouseEventButton(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }), true);
-		break;
-	case  sf::Event::TextEntered:
-		if (pressed)dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get())->enterName(event);
 		break;
 	case sf::Event::MouseMoved:
 		m_Menus.mouseEventButton(window.mapPixelToCoords({ event.mouseMove.x, event.mouseMove.y }), false);
-		if (settings) m_screeninfo[SETTINGS_SCREEN]->mouseEventButton({ float(event.mouseMove.x),float(event.mouseMove.y) }, false);
+		break;
+	case sf::Event::EventType::KeyPressed:
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			window.close();
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+			m_Menus.enter();
 		break;
 	}
+	(*m_Menus.getIteratorToCurrentPressed())->selected(window, event);
 
 }
+
 //========================= start playing ====================================
 //if user pressed "Start"
-void Start::play(sf::RenderWindow& window, const SettingsScreen& settings) {
+void Start::selected(sf::RenderWindow& window, sf::Event& ev) {
 	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
 
 	load(window);//
-	Game game{ settings.getSelectedImage()  ,view ,settings.getName() };
+	Game game{ m_settings.getSelectedImage()  ,view ,m_settings.getName() };
 	gameOver(window, view, game.play(window));// display score screen
 
 	 //	m_Menus.restartMenu();

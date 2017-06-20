@@ -23,11 +23,11 @@ Logo::Logo(const sf::Font& font) : sf::Text::Text("Agar.io", font, LOGO_SIZE) {
 //============================================================================================================
 //									constructor
 //===============================================================================================================
-SettingsScreen::SettingsScreen(const sf::Font& font) {
+SettingsScreen::SettingsScreen() {
 	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-1);
 
 	setNameBox();
-	setTextInNameBox(font);
+	setTextInNameBox();
 
 	setCircle();
 
@@ -48,6 +48,36 @@ void SettingsScreen::mouseEventButton(const sf::Vector2f& ver, bool p) {
 		m_triangleLeft.setHover(ver);
 		m_triangleRight.setHover(ver);
 	}
+}
+//===============================================================================================================
+//								event from user
+//===========================================================================================================
+void SettingsScreen::selected(sf::RenderWindow& w, sf::Event& event) {
+
+	switch (event.type)
+	{
+	case sf::Event::Closed:
+		w.close();
+		break;
+	case sf::Event::MouseButtonPressed:
+		mouseEventButton({ float(event.mouseButton.x),float(event.mouseButton.y) }, true);
+		break;
+	case  sf::Event::TextEntered:
+		enterName(event);
+		break;
+	case sf::Event::MouseMoved:
+		mouseEventButton({ float(event.mouseMove.x),float(event.mouseMove.y) }, false);
+		break;
+	case sf::Event::EventType::KeyPressed:
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			mouseEventButton(left(), true);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			mouseEventButton(right(), true);
+		break;
+	}
+
+	display(w);
+
 }
 
 //===============================================================================================================
@@ -107,12 +137,12 @@ void SettingsScreen::setNameBox() {
 //===============================================================================================
 //								name text
 //===============================================================================================
-void SettingsScreen::setTextInNameBox(const sf::Font& font) {
+void SettingsScreen::setTextInNameBox() {
 	m_defaultStr = "Enter your name.. ";
 	m_name.clear();
 
-	m_theName.setFont(font);
-	m_textDef.setFont(font);
+	m_theName.setFont(Fonts::instance()[fonts::SETTINGS]);
+	m_textDef.setFont(Fonts::instance()[fonts::SETTINGS]);
 
 	m_textDef.setCharacterSize(30);
 	m_theName.setCharacterSize(m_textDef.getCharacterSize());

@@ -6,7 +6,7 @@ Button::~Button() = default;
 //			Menu functions
 //========================================================================================
 Menu::Menu() {
-	
+
 	setMenuVector();
 	setMenuRec();
 }
@@ -15,14 +15,16 @@ void Menu::setMenuRec() {
 	//set menu box
 	setFillColor(sf::Color(0, 0, 0, 150));
 	setSize(sf::Vector2f{ (*this)[1]->getGlobalBounds().width + float(LEFT_PADDING * 2),float(SCREEN_HEIGHT) });
+	dynamic_cast<Help*>((*this)[2].get())->setWidth(getGlobalBounds().width);
+
 }
 //========================================================================================
 
 void Menu::setMenuVector() {
-	
+
 	//puts Menus for opnning screen in a vector
 	push_back(std::make_unique<Start>());
-	push_back(std::make_unique<Settings>());
+	push_back(std::make_unique<Settings>(std::ref(dynamic_cast<Start*>(begin()->get())->settings())));
 	push_back(std::make_unique<Help>());
 	push_back(std::make_unique<Close>());
 
@@ -32,10 +34,8 @@ void Menu::setMenuVector() {
 	for (auto& it = begin(); it != end(); ++it) {
 		(*it)->setPosition(float(LEFT_PADDING), float(topPadding));
 		topPadding = (TOP_PADDING + unsigned((*it)->getPosition().y) + FONT_SIZE);
-		if (dynamic_cast<Help*>(it->get()))
-			dynamic_cast<Help*>(it->get())->setWidth(getGlobalBounds().width);
 	}
-	(*m_itToPressed)->setPosition(float(LEFT_PADDING), float(SCREEN_HEIGHT -(FONT_SIZE +  DOWN_PADDING)));
+	(*m_itToPressed)->setPosition(float(LEFT_PADDING), float(SCREEN_HEIGHT - (FONT_SIZE + DOWN_PADDING)));
 }
 //=====================================================================================
 // the mouse event: true- mousePressed. false- mouseMoved.
@@ -44,18 +44,18 @@ void Menu::setMenuVector() {
 */
 void Menu::mouseEventButton(const sf::Vector2f& location, bool event) {
 	std::vector<std::unique_ptr<Button>>::iterator button;
-	for (button = begin(); button != end(); ++button) 
+	for (button = begin(); button != end(); ++button)
 		(event) ? (m_itToPressed = (*button)->pressed(location) ? button : m_itToPressed) : (*button)->onBotton(location);
 
 	//update close class what is displaying
-	(*(--button))->setPressed(button != m_itToPressed );
+	(*(--button))->setPressed(button != m_itToPressed);
 }
 //=====================================================================================
 //								Start functions
 //=====================================================================================
 
 //=====================================================================================
-//			Close functions
+//			`						Close functions
 //=====================================================================================
 void Close::display(sf::RenderWindow& window)
 {

@@ -62,21 +62,22 @@ private:
 //========================================================================================================
 class SettingsScreen : public ScreenInfo {
 public:
-	SettingsScreen(const sf::Font&);
+	SettingsScreen();
 	~SettingsScreen() = default;
 	void display(sf::RenderWindow& w)override;
 	bool pressed(const sf::Vector2f&);
 	void enterName(sf::Event&);
 	void mouseEventButton(const sf::Vector2f&, bool)override;
-
+	const sf::Vector2f& left()const { return m_triangleLeft.getPosition(); }
+	const sf::Vector2f& right()const { return m_triangleRight.getPosition(); }
 	sf::Uint32 getSelectedImage()const { return m_currentImage; }
 	const sf::String& getName()const { return m_theName.getString(); }
-
+	void selected(sf::RenderWindow&, sf::Event&);
 private:
 	/*text box for users name*/
 	//begin :
 	void setNameBox();
-	void setTextInNameBox(const sf::Font&);
+	void setTextInNameBox();
 
 	sf::RectangleShape m_nameBox;
 	sf::Text m_textDef;

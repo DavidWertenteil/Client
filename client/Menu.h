@@ -34,7 +34,7 @@ public:
 	virtual void setPressed(bool p) { m_pressed = p; }
 	virtual unsigned getPlace()const { return m_place; }
 
-
+	virtual void selected(sf::RenderWindow&, sf::Event&) = 0;
 protected:
 	bool m_switch{ false };    //if mouse on button switch display
 	bool m_pressed{ false };
@@ -48,24 +48,29 @@ public:
 	Start(const sf::String& str = "Play", unsigned p = 0)
 		:Button(Fonts::instance()[MENU], str),
 		m_load(),
-		m_end() {}
+		m_end(),
+		m_settings() {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
 	void load(sf::RenderWindow& w)const { m_load.display(w); }
-	void play(sf::RenderWindow& , const SettingsScreen& );
+	void selected(sf::RenderWindow&, sf::Event&)override;
 	void gameOver(sf::RenderWindow& w, sf::View&v, unsigned s) { m_end.endLevelScreen(w, v, s); }
+	SettingsScreen& settings() { return std::ref(m_settings); }
+
 private:
 	loading m_load;
 	EndLevel m_end;
+	SettingsScreen m_settings;
 };
 //======================================================================================
 //                           class Settings
 //======================================================================================
 class Settings : public Button {
 public:
-	Settings(const sf::String& str = "Settings", unsigned p = 1) :Button(Fonts::instance()[MENU], str, p), m_settings(Fonts::instance()[fonts::SETTINGS]){}
+	Settings(SettingsScreen& set, const sf::String& str = "Settings", unsigned p = 1) :Button(Fonts::instance()[MENU], str, p), m_settings(set) {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
+	void selected(sf::RenderWindow& w, sf::Event& e)override { m_settings.selected(w, e); }
 private:
-	SettingsScreen m_settings;
+	SettingsScreen& m_settings;
 };
 //======================================================================================
 //                           class Help
@@ -74,6 +79,7 @@ class Help : public Button {
 public:
 	Help(const sf::String& str = "Help", unsigned p = 2) :Button(Fonts::instance()[MENU], str, p), m_help(Fonts::instance()[fonts::HELP]) {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
+	void selected(sf::RenderWindow& w, sf::Event&)override { m_help.display(w); }
 	void setWidth(float width) { m_help.setWidth(width); }
 private:
 	HelpScreen m_help;
@@ -83,9 +89,10 @@ private:
 //======================================================================================
 class Close : public Button {
 public:
-	Close(const sf::String& str = "Close", unsigned p = 3) :Button(Fonts::instance()[MENU], str), m_logo(Fonts::instance()[fonts::LOGO]){}
+	Close(const sf::String& str = "Close", unsigned p = 3) :Button(Fonts::instance()[MENU], str), m_logo(Fonts::instance()[fonts::LOGO]) {}
 	bool pressed(const sf::Vector2f& location)override;
 	void display(sf::RenderWindow& window)override;
+	void selected(sf::RenderWindow& w, sf::Event&)override { m_logo.display(w); }
 private:
 	Logo m_logo;
 };
@@ -100,8 +107,8 @@ public:
 	void mouseEventButton(const sf::Vector2f&, bool);
 	auto getIteratorToCurrentPressed()const { return m_itToPressed; }
 	const sf::RectangleShape& getRec()const { return (*this); }
-	void restartMenu() { (*this)[0]->setPressed(false); restartIt(); }
-
+	void restartMenu() { if (m_itToPressed == begin()) { (*this)[0]->setPressed(false); restartIt(); } }
+	void enter() { m_itToPressed = begin(); }
 private:
 	void setMenuRec();
 	void setMenuVector();
