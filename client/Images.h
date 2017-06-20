@@ -30,7 +30,8 @@ const unsigned SCREEN_HEIGHT = sf::VideoMode::getDesktopMode().height;
 class Images
 {
 public:
-	Images();
+	inline static Images& instance() { static Images tone; return tone; }
+
 	const sf::Sprite& getImage(int x)const { return m_image[x]; }
 	const std::vector<sf::Sprite>& getImages()const { return m_image; }
 
@@ -41,6 +42,10 @@ public:
 	const sf::Texture& operator[](sf::Uint32 i)const { return m_cirTexture[i]; }
 	
 private:
+	Images();
+	Images(const Images&) = delete;
+	Images& operator=(const Images&) = delete;
+
 	void startImages();
 
 	sf::Texture m_picTexture[Images_t::SPRITE_NUMBER];

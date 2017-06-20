@@ -5,12 +5,12 @@
 //==========================================================================
 //=================================MAPS=====================================
 //==========================================================================
-void Maps::insert(const std::pair<Uint32, sf::Vector2f> &temp, const Images &images)
+void Maps::insert(const std::pair<Uint32, sf::Vector2f> &temp)
 {
 	if (temp.first >= FOOD_LOWER && temp.first <= FOOD_UPPER)
-		emplace(temp.first, std::make_unique<Food>(temp, images[FOOD_PIC]));
+		emplace(temp.first, std::make_unique<Food>(temp, Images::instance()[FOOD_PIC]));
 	else
-		emplace(temp.first, std::make_unique<Bomb>(temp, images[BOMB_PIC]));
+		emplace(temp.first, std::make_unique<Bomb>(temp, Images::instance()[BOMB_PIC]));
 
 	m_x.emplace(temp.second.x, temp.first);
 	m_y.emplace(temp.second.y, temp.first);

@@ -19,7 +19,7 @@ protected:
 //===============================================================================
 class EndLevel :public tempScreen {
 public:
-	EndLevel(const Fonts& font);
+	EndLevel();
 	virtual ~EndLevel() = default;
 	void endLevelScreen(sf::RenderWindow&, sf::View&, unsigned);
 private:
@@ -30,6 +30,6 @@ private:
 //===============================================================================
 class loading :public tempScreen {
 public:
-	loading(const Fonts& font);
+	loading();
 	virtual ~loading() = default;
 };

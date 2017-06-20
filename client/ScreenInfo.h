@@ -2,7 +2,8 @@
 #include "Fonts.h"
 #include "Images.h"
 
-
+const unsigned PADDING = 50;
+//======================================================================================
 class ScreenInfo
 {
 public:
@@ -28,10 +29,10 @@ public:
 //=======================================================================================
 class HelpScreen :public sf::Text, public ScreenInfo {
 public:
-	HelpScreen(const sf::Font&, float);
+	HelpScreen(const sf::Font&);
 	~HelpScreen() = default;
 	void display(sf::RenderWindow& w)override { w.draw((*this)); }
-
+	void setWidth(float width) { setPosition(width + PADDING, 0); }
 };
 
 sf::String helpString();//function that writes the help info
@@ -61,7 +62,7 @@ private:
 //========================================================================================================
 class SettingsScreen : public ScreenInfo {
 public:
-	SettingsScreen(const sf::Font&, const Images&);
+	SettingsScreen(const sf::Font&);
 	~SettingsScreen() = default;
 	void display(sf::RenderWindow& w)override;
 	bool pressed(const sf::Vector2f&);
@@ -90,7 +91,7 @@ private:
 	Triangl m_triangleRight;
 	sf::CircleShape m_circle[Images_t::CIRCLE_NUMBER];
 
-	void setCircle(const Images& image);
+	void setCircle();
 	void setTriangle(const sf::CircleShape&, sf::CircleShape&);
 	void setTriangleLeft(const sf::CircleShape&);
 	void setTriangleRigh(const sf::CircleShape&);

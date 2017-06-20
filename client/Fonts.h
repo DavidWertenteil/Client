@@ -14,7 +14,12 @@ enum fonts {
 class Fonts:public std::vector<sf::Font>
 {
 public:
-	Fonts();
+	inline static Fonts& instance() { static Fonts tone; return tone; }
 	~Fonts();
+private:
+	Fonts();
+	Fonts(const Fonts&) = delete;
+	Fonts& operator=(const Fonts&) = delete;
+
 };
 

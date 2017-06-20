@@ -5,7 +5,7 @@
 //--------------------------------------------------------------------------
 class Score :public sf::Text {
 public:
-	Score(const Fonts&);
+	Score();
 	~Score() {}
 	void setScore(unsigned s) { setString("score: " + std::to_string(s)); }
 };
@@ -13,9 +13,9 @@ public:
 class Game
 {
 public:
-	Game(const Images &images, const Fonts &fonts, Uint32 image, sf::View&, const sf::String &name = "no name");
-	void receive(const Images &images, const Fonts &fonts);
-	unsigned play(sf::RenderWindow &w, const Images &images, const Fonts &fonts);
+	Game(Uint32 image, sf::View&, const sf::String &name = "no name");
+	void receive();
+	unsigned play(sf::RenderWindow &w);
 
 	void draw(sf::RenderWindow &w)const;
 	void display(sf::RenderWindow &w);
@@ -23,8 +23,8 @@ public:
 
 private:
 	void updateMove(float);
-	void receiveChanges(const Images &images, const Fonts &fonts);
-	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images, const Fonts &fonts);
+	void receiveChanges();
+	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet);
 	//===========================
 	Maps m_objectsOnBoard;
 	std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> m_players;

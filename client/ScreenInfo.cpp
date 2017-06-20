@@ -2,7 +2,6 @@
 #include  <iostream>
 
 const unsigned LOGO_SIZE = 100;
-const unsigned PADDING = 50;
 
 
 /*************************************************************************************************************/
@@ -24,13 +23,13 @@ Logo::Logo(const sf::Font& font) : sf::Text::Text("Agar.io", font, LOGO_SIZE) {
 //============================================================================================================
 //									constructor
 //===============================================================================================================
-SettingsScreen::SettingsScreen(const sf::Font& font, const Images& image) {
+SettingsScreen::SettingsScreen(const sf::Font& font) {
 	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-1);
 
 	setNameBox();
 	setTextInNameBox(font);
 
-	setCircle(image);
+	setCircle();
 
 	setTriangle(m_circle[m_currentImage], m_triangleLeft);
 	setTriangle(m_circle[m_currentImage], m_triangleRight);
@@ -54,7 +53,7 @@ void SettingsScreen::mouseEventButton(const sf::Vector2f& ver, bool p) {
 //===============================================================================================================
 //								images in circle
 //===============================================================================================================
-void SettingsScreen::setCircle(const Images& image) {
+void SettingsScreen::setCircle() {
 	for (size_t i = 0; i < Images_t::CIRCLE_NUMBER; ++i) {
 		m_circle[i].setRadius(150);
 		m_circle[i].setOutlineThickness(5);
@@ -62,7 +61,7 @@ void SettingsScreen::setCircle(const Images& image) {
 		auto x = (float(SCREEN_WIDTH) - m_circle[i].getGlobalBounds().width) / 2;
 		auto y = (float(SCREEN_HEIGHT) - m_circle[i].getGlobalBounds().height) / 2;
 		m_circle[i].setPosition(sf::Vector2f{ x,y });
-		m_circle[i].setTexture(&image[i]);
+		m_circle[i].setTexture(&Images::instance()[i]);
 	}
 }
 //===============================================================================================================
@@ -164,12 +163,10 @@ void SettingsScreen::display(sf::RenderWindow& w) {
 /*************************************************************************************************************/
 //										 Help Screen
 //===============================================================================
-HelpScreen::HelpScreen(const sf::Font& font,float padding_left) : sf::Text::Text(helpString(), font, LOGO_SIZE) {
+HelpScreen::HelpScreen(const sf::Font& font) : sf::Text::Text(helpString(), font, LOGO_SIZE) {
 
 	setFillColor(sf::Color::White);
 	setCharacterSize(15);
-
-	setPosition(sf::Vector2f{ padding_left + PADDING,0 });
 }
 //==================================================================================
 sf::String helpString() {

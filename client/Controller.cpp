@@ -47,11 +47,10 @@ int main() {
 				basic Controller functions
 **********************************************************************************************/
 //===================== constructor ===================================
-Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
+Controller::Controller() :m_Menus() {
 	//m_music.openFromFile("sounds/menu.ogg");
 	//m_music.setLoop(true);
 	//m_music.play();
-	makeScreen();
 }
 /************************************************************************
 					Controller running functions
@@ -59,7 +58,7 @@ Controller::Controller() :m_fonts(), m_Menus(m_fonts) {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io" , sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io", sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -79,12 +78,12 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 
 	while (window.isOpen())
 	{
-		if (m_Menus[START_GAME]->getPressed())
-			play(window);
+		//if (m_Menus[START_GAME]->getPressed())
+		//	play(window);
 
 		events(window);  //get event from user
 		window.clear();
-		window.draw(m_images.getImage(BACKGROUND1));//background image of openning screen
+		window.draw(Images::instance().getImage(BACKGROUND1));//background image of openning screen
 		window.draw(m_Menus.getRec());// background menu rectangle
 		draw(window, m_Menus);		  // buttons of menu
 		m_screeninfo[(*m_Menus.getIteratorToCurrentPressed())->getPlace()]->display(window);
@@ -92,23 +91,11 @@ void Controller::MenuEvents(sf::RenderWindow& window) {
 	}
 }
 
-//========================= start playing ====================================
-//if user pressed "Start"
-void Controller::play(sf::RenderWindow& window) {
-	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
-	auto it = dynamic_cast<SettingsScreen*>(m_screeninfo[SETTINGS_SCREEN].get());
-	auto menu = dynamic_cast<Start*>(m_Menus[START_GAME].get());
-	
-	menu->load(window);//
-	Game game{ m_images, m_fonts,it->getSelectedImage()  ,view ,it->getName() };
-	menu->gameOver(window, view, game.play(window, m_images, m_fonts));// display score screen
 
-	m_Menus.restartMenu();
-}
 //======================= The events of menu screen ===================================
 void Controller::events(sf::RenderWindow& window) {
 
-	sf::Event event;
+	static sf::Event event;
 	window.pollEvent(event);
 	static bool pressed{ false };
 	bool settings = (*m_Menus.getIteratorToCurrentPressed())->getPlace() == SETTINGS_SCREEN;
@@ -137,13 +124,16 @@ void Controller::events(sf::RenderWindow& window) {
 	}
 
 }
+//========================= start playing ====================================
+//if user pressed "Start"
+void Start::play(sf::RenderWindow& window, const SettingsScreen& settings) {
+	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
 
-//================================================================================
-void Controller::makeScreen() {
-	m_screeninfo.push_back(std::make_unique<Logo>(m_fonts[fonts::LOGO]));
-	m_screeninfo.push_back(std::make_unique<SettingsScreen>(m_fonts[fonts::SETTINGS], m_images));
-	m_screeninfo.push_back(std::make_unique<HelpScreen>(m_fonts[fonts::HELP], m_Menus.getGlobalBounds().width));
+	load(window);//
+	Game game{ settings.getSelectedImage()  ,view ,settings.getName() };
+	gameOver(window, view, game.play(window));// display score screen
 
+	 //	m_Menus.restartMenu();
 }
-
+//================================================================================
 //===================================================================================

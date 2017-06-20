@@ -7,18 +7,18 @@
 //====================================================================================
 //================================  Score  c-tor =====================================
 //====================================================================================
-Score::Score(const Fonts &fonts) :sf::Text("score: " + std::to_string(NEW_PLAYER), fonts[SCORE], 40) {
+Score::Score() :sf::Text("score: " + std::to_string(NEW_PLAYER), Fonts::instance()[SCORE], 40) {
 	setPosition({ 10, float(sf::VideoMode::getDesktopMode().height) - getGlobalBounds().height - 10 });
 	setFillColor(sf::Color(105, 105, 105));
 }
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& view, const sf::String &name)
+Game::Game( Uint32 image_id, sf::View& view, const sf::String &name)
 	:m_me(std::make_unique<MyPlayer>()),
-	m_background(images.getImage(BACKGROUND)),
+	m_background(Images::instance().getImage(BACKGROUND)),
 	m_view(view),
-	m_score(fonts),
+	m_score(),
 	m_minimap(sf::FloatRect{ 0, 0, float(BOARD_SIZE.x), float(BOARD_SIZE.y) }),
 	m_minimapBackground(BOARD_SIZE)
 {
@@ -32,15 +32,15 @@ Game::Game(const Images &images, const Fonts &fonts, Uint32 image_id, sf::View& 
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
 
-	receive(images, fonts);//קליטת מידע מהשרת
-	m_me->editText(fonts[SETTINGS], name);
+	receive();//קליטת מידע מהשרת
+	m_me->editText(Fonts::instance()[SETTINGS], name);
 
 	m_minimap.setViewport(sf::FloatRect{ 0,0,0.15f, 0.2f });
 	m_minimapBackground.setFillColor(sf::Color(105, 105, 105, 150));
 }
 //=============================================================================================================
 //--------------------------------------------------------------------------
-void Game::receive(const Images &images, const Fonts &fonts)
+void Game::receive()
 {
 	sf::Packet packet;
 	std::pair <Uint32, sf::Vector2f> temp;
@@ -60,12 +60,12 @@ void Game::receive(const Images &images, const Fonts &fonts)
 			packet >> temp;
 
 			if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER)
-				m_objectsOnBoard.insert(temp, images);
+				m_objectsOnBoard.insert(temp);
 
 			else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)//
 			{
 				packet >> radius >> image >> name;
-				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], radius, temp.second, name));
+				m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, Images::instance()[image], Fonts::instance()[SETTINGS], radius, temp.second, name));
 			}
 		}
 	}
@@ -73,7 +73,7 @@ void Game::receive(const Images &images, const Fonts &fonts)
 	m_players.erase(temp.first); //הורדת העיגול שלי מהשחקנים האחרים
 
 	m_me->setId(temp.first);//עדכון העיגול שלי
-	m_me->setTexture(images[image]);
+	m_me->setTexture(Images::instance()[image]);
 	m_me->setPosition(temp.second);
 	m_me->setCenter(temp.second + Vector2f{ NEW_PLAYER,NEW_PLAYER });
 
@@ -83,7 +83,7 @@ void Game::receive(const Images &images, const Fonts &fonts)
 //====================================================================================
 //================================     PLAY     ======================================
 //====================================================================================
-unsigned Game::play(sf::RenderWindow &w, const Images &images, const Fonts &fonts)
+unsigned Game::play(sf::RenderWindow &w)
 {
 	m_socket.setBlocking(false);
 
@@ -94,14 +94,13 @@ unsigned Game::play(sf::RenderWindow &w, const Images &images, const Fonts &font
 	{
 		w.pollEvent(event);
 		auto speed = TimeClass::instance().RestartClock();
-
 		//תזוזה של השחקן
 		if (m_receive) // אם הוא קלט את התזוזה הקודמת שלו
 			if (event.type == sf::Event::EventType::KeyPressed)
 				updateMove(speed);
 
 		//קבלת מידע מהשרת
-		receiveChanges(images, fonts);
+		receiveChanges();
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
@@ -146,7 +145,7 @@ void Game::updateMove(float speed)
 //===========================      RECEIVE DATA      =================================
 //====================================================================================
 //מחזיר שקר אם מתתי
-void Game::receiveChanges(const Images &images, const Fonts &fonts)
+void Game::receiveChanges()
 {
 	sf::Packet packet;
 
@@ -159,7 +158,7 @@ void Game::receiveChanges(const Images &images, const Fonts &fonts)
 		std::vector<Uint32> del;
 
 		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
-			m_objectsOnBoard.insert(temp, images);
+			m_objectsOnBoard.insert(temp);
 
 		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{
@@ -174,19 +173,19 @@ void Game::receiveChanges(const Images &images, const Fonts &fonts)
 			}
 
 			else // שחקן חדש
-				addPlayer(temp, packet, images, fonts);
+				addPlayer(temp, packet);
 		}
 	}
 
 	deleteDeadPlayer(m_players);
 }
 //------------------------------------------------------------------------------------
-void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet, const Images &images, const Fonts &fonts)
+void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet)
 {
 	Uint32 image;
 	sf::String name;
 	packet >> image >> name;
-	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, images[image], fonts[SETTINGS], NEW_PLAYER, temp.second, name));
+	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, Images::instance()[image], Fonts::instance()[SETTINGS], NEW_PLAYER, temp.second, name));
 }
 //------------------------------------------------------------------------------------
 void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players)
