@@ -20,25 +20,32 @@ void Maps::insert(const std::pair<Uint32, sf::Vector2f> &temp)
 //---------------------------------------------------------------------------
 std::set<Uint32> Maps::colliding(const Vector2f& ver, const float radius)
 {
-	auto xLower = m_x.lower_bound(ver.x - radius - BOMB_RADIUS);
-	auto xUpper = m_x.upper_bound(ver.x + radius + BOMB_RADIUS);
-	auto yLower = m_y.lower_bound(ver.y - radius - BOMB_RADIUS);
-	auto yUpper = m_y.upper_bound(ver.y + radius + BOMB_RADIUS);
-
-	std::set<Uint32> x;
-	std::set<Uint32> y;
 	std::set<Uint32> intersection;
 
-	for (; xLower != xUpper; ++xLower)
-		if (find(xLower->second) != end())
-			x.emplace(find(xLower->second)->first);
+	//auto xLower = m_x.lower_bound(ver.x - radius - BOMB_RADIUS);
+	//auto xUpper = m_x.upper_bound(ver.x + radius + BOMB_RADIUS);
+	//auto yLower = m_y.lower_bound(ver.y - radius - BOMB_RADIUS);
+	//auto yUpper = m_y.upper_bound(ver.y + radius + BOMB_RADIUS);
 
-	for (; yLower != yUpper; ++yLower)
-		if (find(yLower->second) != end())
-			y.emplace(find(yLower->second)->first);
+	//std::set<Uint32> x;
+	//std::set<Uint32> y;
+	////std::set<Uint32> intersection;
 
-	std::set_intersection(x.begin(), x.end(), y.begin(), y.end(), std::inserter(intersection, intersection.begin()));
+	//for (; xLower != xUpper; ++xLower)
+	//	if (find(xLower->second) != end())
+	//		x.emplace(find(xLower->second)->first);
 
+	//for (; yLower != yUpper; ++yLower)
+	//	if (find(yLower->second) != end())
+	//		y.emplace(find(yLower->second)->first);
+
+	//std::set_intersection(x.begin(), x.end(), y.begin(), y.end(), std::inserter(intersection, intersection.begin()));
+
+	//return intersection;
+
+	for (auto x = begin(); x != end(); x++)
+		intersection.insert(x->first);
+	
 	return intersection;
 }
 //---------------------------------------------------------------------------

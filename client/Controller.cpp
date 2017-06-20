@@ -76,7 +76,7 @@ void Controller::run() {
 //======================== while window is open =================================
 void Controller::MenuEvents(sf::RenderWindow& window) {
 
-	while (window.isOpen())
+	while (true)
 	{
 		window.clear();
 		m_Menus.restartMenu();
@@ -95,9 +95,6 @@ void Controller::events(sf::RenderWindow& window) {
 
 	switch (event.type)
 	{
-	case sf::Event::Closed:
-		window.close();
-		break;
 	case sf::Event::MouseButtonPressed:
 		m_Menus.mouseEventButton(window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }), true);
 		break;

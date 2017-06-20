@@ -56,9 +56,6 @@ void SettingsScreen::selected(sf::RenderWindow& w, sf::Event& event) {
 
 	switch (event.type)
 	{
-	case sf::Event::Closed:
-		w.close();
-		break;
 	case sf::Event::MouseButtonPressed:
 		mouseEventButton({ float(event.mouseButton.x),float(event.mouseButton.y) }, true);
 		break;
