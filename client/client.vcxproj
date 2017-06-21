@@ -154,6 +154,7 @@
     <ClInclude Include="Images.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="ScreenInfo.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="tempScreens.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClCompile Include="Images.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="ScreenInfo.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="tempScreen.cpp" />
     <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
