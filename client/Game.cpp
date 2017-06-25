@@ -112,6 +112,7 @@ unsigned Game::play(sf::RenderWindow &w)
 	{
 		w.pollEvent(event);
 		auto speed = TimeClass::instance().RestartClock();
+		lastMove += TimeClass::instance().getTime();
 		//תזוזה של השחקן
 		if (m_receive) // אם הוא קלט את התזוזה הקודמת שלו
 			if (event.type == sf::Event::EventType::KeyPressed)
@@ -161,7 +162,7 @@ void Game::updateMove(float speed, float &lastMove)
 			Sleep(100);
 
 		m_receive = false;
-		lastMove = TimeClass::instance().getTime();
+		lastMove = 0; 
 	}
 }
 
@@ -206,7 +207,7 @@ void Game::receiveChanges()
 //------------------------------------------------------------------------------------
 void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet)
 {
-	Uint32 image;
+	Uint32 image=0;
 	sf::String name;
 	packet >> image >> name;
 	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, Images::instance()[image], Fonts::instance()[SETTINGS], NEW_PLAYER, temp.second, name));
