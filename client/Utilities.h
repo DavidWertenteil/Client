@@ -47,6 +47,7 @@ public:
 	~TimeClass() {}
 
 	inline float RestartClock() { return m_clock.restart().asSeconds(); }
+	float getTime()const { return m_clock.getElapsedTime().asSeconds(); }
 private:
 	TimeClass() = default;
 	TimeClass(const TimeClass&) = delete;

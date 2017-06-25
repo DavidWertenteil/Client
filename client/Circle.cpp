@@ -70,13 +70,13 @@ void Player::newRadius(Circle *c)
 	{
 		setRadius(getRadius() + c->getRadius() / 10);
 		setScore(Uint32(getScore() + c->getRadius()));
-		//Sound::instance().play(FOOD);
+		Sound::instance().play(FOOD);
 	}
 	else if (dynamic_cast<Bomb*>(c))
 	{
 		setRadius(getRadius() / 2);
 		setScore(Uint32(getScore() / 2));
-		//Sound::instance().play(BOMB);
+		Sound::instance().play(BOMB);
 	}
 
 	m_name.setCharacterSize(unsigned(getRadius() / 2));

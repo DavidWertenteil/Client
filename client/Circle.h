@@ -5,7 +5,7 @@
 #include <iostream>
 #include "Images.h"
 #include "Fonts.h"
-//#include "Sound.h"
+#include "Sound.h"
 #include <unordered_map>
 
 #ifdef _DEBUG
@@ -14,12 +14,14 @@
 #pragma comment(lib, "sfml-window-d.lib")
 #pragma comment(lib, "sfml-graphics-d.lib")
 #pragma comment(lib, "sfml-network-d.lib")
+#pragma comment(lib, "sfml-audio-d.lib")
 #elif defined(NDEBUG)
 #pragma comment(lib, "sfml-main.lib")
 #pragma comment(lib, "sfml-system.lib")
 #pragma comment(lib, "sfml-window.lib")
 #pragma comment(lib, "sfml-graphics.lib")
 #pragma comment(lib, "sfml-network.lib")
+#pragma comment(lib, "sfml-audio.lib")
 #else
 #error "Unrecognized configuration!"
 #endif

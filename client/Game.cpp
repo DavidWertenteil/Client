@@ -21,11 +21,23 @@ Game::Game( Uint32 image_id, sf::View& view, const sf::String &name)
 	m_score(),
 	m_minimap(sf::FloatRect{ 0, 0, float(BOARD_SIZE.x), float(BOARD_SIZE.y) }),
 	m_minimapBackground(BOARD_SIZE)
-{
+{ 
 
-	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
-	//if (m_socket.connect("10.2.16.95", 5555) != sf::TcpSocket::Done)
-		std::cout << "no connecting" << std::endl;
+	while (true)
+	{
+		try
+		{
+			connectToServer();
+		}
+		catch (std::exception &ex)
+		{
+			system("cls");
+			std::cout << ex.what() << std::endl;
+			continue; //not break the loop
+		}
+
+		break;
+	}
 
 	sf::Packet packet;
 	packet << image_id << name; //שליחה לשרת של התמונה שלי
@@ -38,7 +50,12 @@ Game::Game( Uint32 image_id, sf::View& view, const sf::String &name)
 	m_minimap.setViewport(sf::FloatRect{ 0,0,0.15f, 0.2f });
 	m_minimapBackground.setFillColor(sf::Color(105, 105, 105, 150));
 }
-//=============================================================================================================
+//--------------------------------------------------------------------------
+void Game::connectToServer()
+{
+	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+		throw std::exception{ "no connecting, please wait" };
+}
 //--------------------------------------------------------------------------
 void Game::receive()
 {
@@ -89,6 +106,7 @@ unsigned Game::play(sf::RenderWindow &w)
 
 	sf::Packet packet;
 	sf::Event event;
+	float lastMove = 0;
 
 	while (m_me->getLive())
 	{
@@ -97,13 +115,18 @@ unsigned Game::play(sf::RenderWindow &w)
 		//תזוזה של השחקן
 		if (m_receive) // אם הוא קלט את התזוזה הקודמת שלו
 			if (event.type == sf::Event::EventType::KeyPressed)
-				updateMove(speed);
+				updateMove(speed, lastMove);
 
 		//קבלת מידע מהשרת
 		receiveChanges();
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
+		
+		if (TimeClass::instance().getTime() - lastMove > 0.05)
+			m_receive = true;
+
+
 		m_score.setScore(m_me->getScore());
 		display(w);
 	}
@@ -115,7 +138,7 @@ unsigned Game::play(sf::RenderWindow &w)
 //===========================      UPDATE MOVE       =================================
 //====================================================================================
 //מחזיר שקר אם מתתי
-void Game::updateMove(float speed)
+void Game::updateMove(float speed, float &lastMove)
 {
 	sf::Packet packet;
 	packet.clear();
@@ -138,6 +161,7 @@ void Game::updateMove(float speed)
 			Sleep(100);
 
 		m_receive = false;
+		lastMove = TimeClass::instance().getTime();
 	}
 }
 
