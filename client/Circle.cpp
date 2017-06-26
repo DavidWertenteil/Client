@@ -1,19 +1,18 @@
 #pragma once
 #include "Circle.h"
 
-
-
-
 //====================================================================================
 //===========================      CONSTRACTORS      =================================
 //====================================================================================
-Player::Player(Uint32 id, Vector2f c, unsigned s) :Circle(id, c) {
-	setPointCount(100); 
+Player::Player(Uint32 id, Vector2f c, unsigned s) :Circle(id, c) 
+{
+	setPointCount(100);
 	setOutlineThickness(4);
 	setOutlineColor(sf::Color::Black);
-}
-//======================== MyPlayer c-tor ==================================================
 
+	m_score = unsigned(getRadius());
+}
+//======================================================================================
 MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font, const sf::Vector2f& position, const sf::String& name)
 	:Player(id)
 {
@@ -30,6 +29,8 @@ MyPlayer::MyPlayer()
 	setOutlineColor(sf::Color::Black);
 	setRadius(NEW_PLAYER);
 	setCenter({ NEW_PLAYER ,NEW_PLAYER });
+
+	m_score = unsigned(getRadius());
 }
 //======================================================================================
 OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, const sf::Font &font, float radius, sf::Vector2f position, const sf::String &name)
@@ -40,6 +41,7 @@ OtherPlayers::OtherPlayers(Uint32 id, const sf::Texture &image, const sf::Font &
 	setCenter(position + Vector2f{ radius, radius });
 	setTexture(&image);
 
+	m_score = unsigned(getRadius());
 	editText(font, name);
 }
 //======================================================================================
@@ -69,14 +71,18 @@ void Player::newRadius(Circle *c)
 	if (dynamic_cast<Food*>(c) || dynamic_cast<Player*>(c))
 	{
 		setRadius(getRadius() + c->getRadius() / 10);
-		setScore(Uint32(getScore() + c->getRadius()));
-		Sound::instance().play(FOOD);
+		setScore(unsigned(getRadius()));
+		
+		if (dynamic_cast<MyPlayer*>(this))
+			Sound::instance().play(FOOD);
 	}
 	else if (dynamic_cast<Bomb*>(c))
 	{
 		setRadius(getRadius() / 2);
 		setScore(Uint32(getScore() / 2));
-		Sound::instance().play(BOMB);
+		
+		if (dynamic_cast<MyPlayer*>(this))
+			Sound::instance().play(BOMB);
 	}
 
 	m_name.setCharacterSize(unsigned(getRadius() / 2));
@@ -109,7 +115,7 @@ bool Player::circlesCollide(const Circle* p) const
 //-----------------------------------------------------
 bool MyPlayer::legalMove(float speed)
 {
-	sf::Vector2f moveTo{0,0};
+	sf::Vector2f moveTo{ 0,0 };
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && getCenter().y - getRadius() - speed*MOVE >= 0)
 		moveTo += { 0, -speed*MOVE };
@@ -126,7 +132,7 @@ bool MyPlayer::legalMove(float speed)
 	move(moveTo.x, moveTo.y);
 
 	return moveTo != sf::Vector2f{ 0,0 };
-} 
+}
 //--------------------------------------------------------------------------------------
 void Player::editText(const sf::Font &font, const sf::String name)
 {

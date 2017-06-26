@@ -2,6 +2,8 @@
 #include "Utilities.h"
 #include <exception>
 #include <map>
+#include "ScoreList.h"
+
 
 //--------------------------------------------------------------------------
 class Score :public sf::Text {
@@ -38,6 +40,7 @@ private:
 	sf::View& m_view;
 	sf::View m_minimap;
 	sf::RectangleShape m_minimapBackground;
+	ScoreList m_scoreList;
 
 	bool m_receive = true;
 };

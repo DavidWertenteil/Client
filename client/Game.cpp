@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <Windows.h>
+#include <string>
+
 
 //====================================================================================
 //================================  Score  c-tor =====================================
@@ -14,14 +16,14 @@ Score::Score() :sf::Text("score: " + std::to_string(NEW_PLAYER), Fonts::instance
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game( Uint32 image_id, sf::View& view, const sf::String &name)
+Game::Game(Uint32 image_id, sf::View& view, const sf::String &name)
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(Images::instance().getImage(BACKGROUND)),
 	m_view(view),
 	m_score(),
 	m_minimap(sf::FloatRect{ 0, 0, float(BOARD_SIZE.x), float(BOARD_SIZE.y) }),
 	m_minimapBackground(BOARD_SIZE)
-{ 
+{
 
 	while (true)
 	{
@@ -123,7 +125,7 @@ unsigned Game::play(sf::RenderWindow &w)
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 			return m_me->getScore();
-		
+
 		if (TimeClass::instance().getTime() - lastMove > 0.05)
 			m_receive = true;
 
@@ -138,7 +140,6 @@ unsigned Game::play(sf::RenderWindow &w)
 //====================================================================================
 //===========================      UPDATE MOVE       =================================
 //====================================================================================
-//מחזיר שקר אם מתתי
 void Game::updateMove(float speed, float &lastMove)
 {
 	sf::Packet packet;
@@ -162,19 +163,20 @@ void Game::updateMove(float speed, float &lastMove)
 			Sleep(100);
 
 		m_receive = false;
-		lastMove = 0; 
+		lastMove = 0;
 	}
 }
 
 //====================================================================================
 //===========================      RECEIVE DATA      =================================
 //====================================================================================
-//מחזיר שקר אם מתתי
 void Game::receiveChanges()
 {
 	sf::Packet packet;
 
-	m_socket.receive(packet);
+	if (m_socket.receive(packet) == sf::TcpSocket::Partial)
+		m_receive = true;
+
 	while (!packet.endOfPacket())
 	{
 		std::pair<Uint32, sf::Vector2f> temp;
@@ -198,7 +200,14 @@ void Game::receiveChanges()
 			}
 
 			else // שחקן חדש
+			try
+			{
 				addPlayer(temp, packet);
+			}
+			catch (...)
+			{
+
+			}
 		}
 	}
 
@@ -207,7 +216,7 @@ void Game::receiveChanges()
 //------------------------------------------------------------------------------------
 void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet)
 {
-	Uint32 image=0;
+	Uint32 image = 0;
 	sf::String name;
 	packet >> image >> name;
 	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, Images::instance()[image], Fonts::instance()[SETTINGS], NEW_PLAYER, temp.second, name));
@@ -262,15 +271,16 @@ void Game::display(sf::RenderWindow &w)
 	w.draw(m_background);
 	draw(w);
 	w.draw(m_me->getName());
-	
+
 	w.setView(m_minimap);
 	w.draw(m_minimapBackground);
 	draw(w);
-	////------------------- ניקוד --------------------
+	//------------------- ניקוד --------------------
 	m_view.setCenter(float(SCREEN_WIDTH / 2), float(SCREEN_HEIGHT / 2));
 	w.setView(m_view);
 	w.draw(m_score);
-
+	//--------------------- הניקוד הכי גבוה --------------------
+	m_scoreList.display(w, m_players, m_me);
 
 	w.display();
 

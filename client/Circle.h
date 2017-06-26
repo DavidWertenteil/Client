@@ -50,7 +50,7 @@ const Uint32 BOMBS_UPPER = 10000;
 const float MOVE = 800;
 const sf::Vector2f BOARD_SIZE{ 3000.f,3000.f };
 
-
+//=============================================================================================
 class Circle :public CircleShape
 {
 public:
@@ -87,17 +87,18 @@ public:
 	void move(float x, float y);
 	void setPosition(const Vector2f &);
 
-	void setScore(Uint32 radius) { m_score = unsigned(radius); }
-	unsigned getScore() const { return unsigned(getRadius()); }
+	void setScore(unsigned radius) { m_score = radius; }
+	unsigned getScore() const { return m_score; }
 
 	bool getLive() const { return m_live; }
 	void setLive(bool l) { m_live = l; }
 
 	void editText(const sf::Font &font, const sf::String name);
 	sf::Text getName() const { return m_name; }
+	sf::String getString() const { return m_name.getString(); }
 
 protected:
-	unsigned m_score = 0;
+	unsigned m_score;
 	bool m_live = true;
 	sf::Text m_name;
 };
