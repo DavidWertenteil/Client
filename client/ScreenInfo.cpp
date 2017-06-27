@@ -24,7 +24,7 @@ Logo::Logo(const sf::Font& font) : sf::Text::Text("Agar.io", font, LOGO_SIZE) {
 //									constructor
 //===============================================================================================================
 SettingsScreen::SettingsScreen() {
-	m_currentImage = rand()% (Images_t::CIRCLE_NUMBER-1);
+	m_currentImage = rand() % (Images_t::CIRCLE_NUMBER - 1);
 
 	setNameBox();
 	setTextInNameBox();
@@ -40,7 +40,7 @@ SettingsScreen::SettingsScreen() {
 void SettingsScreen::mouseEventButton(const sf::Vector2f& ver, bool p) {
 	if (p) {
 		if (m_triangleLeft.setPressed(ver))
-			m_currentImage = (m_currentImage != 0)? m_currentImage - 1: Images_t::CIRCLE_NUMBER - 1;
+			m_currentImage = (m_currentImage != 0) ? m_currentImage - 1 : Images_t::CIRCLE_NUMBER - 1;
 		if (m_triangleRight.setPressed(ver))
 			m_currentImage = (m_currentImage != Images_t::CIRCLE_NUMBER - 1) ? m_currentImage + 1 : 0;
 	}
@@ -116,7 +116,7 @@ void SettingsScreen::setTriangleRigh(const sf::CircleShape& circle) {
 
 	m_triangleRight.setRotation(90);
 	auto x = circle.getPosition().x + PADDING + circle.getGlobalBounds().width - m_triangleRight.getGlobalBounds().left / 2;
-	auto y = circle.getPosition().y + circle.getRadius() / 2 + (m_triangleRight.getRadius()) ;
+	auto y = circle.getPosition().y + circle.getRadius() / 2 + (m_triangleRight.getRadius());
 	m_triangleRight.setPosition(x, y);
 }
 //=============================================================================================================
@@ -167,7 +167,7 @@ void SettingsScreen::enterName(sf::Event& event) {
 	else if (event.text.unicode == 8 && m_name.getSize() > 0)
 		m_name.erase(m_name.getSize() - 1, m_name.getSize());
 
-	m_theName.setString((m_name.isEmpty())?"unknown": m_name);
+	m_theName.setString((m_name.isEmpty()) ? "unknown" : m_name);
 
 }
 
@@ -184,30 +184,50 @@ void SettingsScreen::display(sf::RenderWindow& w) {
 	m_triangleLeft.display(w);
 	m_triangleRight.display(w);
 	w.draw(m_circle[m_currentImage]);
-	
+
 }
 
 /*************************************************************************************************************/
 //										 Help Screen
 //===============================================================================
-HelpScreen::HelpScreen(const sf::Font& font) : sf::Text::Text(helpString(), font, LOGO_SIZE) {
+HelpScreen::HelpScreen(const sf::Font& font) : sf::Text::Text("",font, LOGO_SIZE) {
 
-	setFillColor(sf::Color::White);
-	setCharacterSize(15);
+	setTitle();
+	setParagraph();
 }
 //==================================================================================
-sf::String helpString() {
-	sf::String str;
-	str = "\nGame rulse: \n\n";
-	str += "rufufufuf fufuf fuuf ufuf fufuuf ufufu\n\n";
-	str += "\n\n\n";
-	str += "bla bla bla bla bla bla bla \n\n";
-	str += "bla bla bla bla \n\n";
-	str += "ga ga ga ga aga aga aga aga ga ag ag aga gagag ag\n\n";
-	str += "rufufufuf fufuf fuuf ufuf fufuuf ufufu\n\n";
-	str += "bla bla bla bla bla bla bla bla\n\n";
-	str += "bla bla bla bla bla bla bla bla bla bla bla\n\n";
+void HelpScreen::setParagraph() {
 
-
-	return str;
+	_paragraph = "\n\n\n\n\n\n\n";
+	_paragraph += "This game is all about eating and growing!\n\n";
+	_paragraph += "You grow by eatint food or other players.\n\n";
+	_paragraph += "And shrink by bumping into bombs.\n\n";
+	_paragraph += "You die when you bump into a bigger player or \n";
+	_paragraph += "(if you are small enough) a bomb. \n\n\n\n";
+	_paragraph += "Good Luck :)";
+}
+//==================================================================================
+void HelpScreen::setTitle() {
+	_title = "\nGame rulse:";
+}
+//======================================================================================
+void HelpScreen::display(sf::RenderWindow& w) {
+	drawTitle(w);
+	drawParagraph(w);
+}
+//======================================================================================
+void HelpScreen::drawParagraph(sf::RenderWindow& w) {
+	setFillColor(sf::Color(139, 231, 96));
+	setCharacterSize(35);
+	setStyle(sf::Text::Regular);
+	setString(_paragraph);
+	w.draw((*this));
+}
+//======================================================================================
+void HelpScreen::drawTitle(sf::RenderWindow& w) {
+	setFillColor(sf::Color(250, 106, 78));
+	setCharacterSize(65);
+	setStyle(sf::Text::Underlined | sf::Text::Bold);
+	setString(_title);
+	w.draw((*this));
 }

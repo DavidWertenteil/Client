@@ -12,6 +12,7 @@ Fonts::Fonts()
 	(*this)[MENU].loadFromFile("fonts/comic.ttf");
 	(*this)[SETTINGS].loadFromFile("fonts/Sunny Spring Day - OTF.otf");
 	(*this)[HELP].loadFromFile("fonts/Kid Marker.ttf");
+	(*this)[HELP_INFO].loadFromFile("fonts/help.ttf");
 	(*this)[NAME].loadFromFile("fonts/name.ttf");
 	(*this)[SCORE].loadFromFile("fonts/score.otf");
 

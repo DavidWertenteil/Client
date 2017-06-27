@@ -77,7 +77,7 @@ private:
 //======================================================================================
 class Help : public Button {
 public:
-	Help(const sf::String& str = "Help", unsigned p = 2) :Button(Fonts::instance()[MENU], str, p), m_help(Fonts::instance()[fonts::HELP]) {}
+	Help(const sf::String& str = "Help", unsigned p = 2) :Button(Fonts::instance()[MENU], str, p), m_help(Fonts::instance()[fonts::HELP_INFO]) {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
 	void selected(sf::RenderWindow& w, sf::Event&)override { m_help.display(w); }
 	void setWidth(float width) { m_help.setWidth(width); }

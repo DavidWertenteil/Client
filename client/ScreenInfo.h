@@ -31,11 +31,18 @@ class HelpScreen :public sf::Text, public ScreenInfo {
 public:
 	HelpScreen(const sf::Font&);
 	~HelpScreen() = default;
-	void display(sf::RenderWindow& w)override { w.draw((*this)); }
+	void display(sf::RenderWindow& w)override;
 	void setWidth(float width) { setPosition(width + PADDING, 0); }
-};
+private:
+	void setTitle();
+	void setParagraph();
 
-sf::String helpString();//function that writes the help info
+	void drawParagraph(sf::RenderWindow&);
+	void drawTitle(sf::RenderWindow&);
+
+	sf::String _title;
+	sf::String _paragraph;
+};
 //
 //======================================================================================
 //               class settings screen

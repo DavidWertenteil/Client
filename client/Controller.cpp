@@ -103,7 +103,7 @@ void Controller::events(sf::RenderWindow& window) {
 		break;
 	case sf::Event::EventType::KeyPressed:
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-			window.close();
+			exit(0);
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
 			m_Menus.enter();
 		break;
