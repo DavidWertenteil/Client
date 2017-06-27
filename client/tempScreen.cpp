@@ -50,7 +50,7 @@ void EndLevel::endLevelScreen(sf::RenderWindow& w, sf::View& v, unsigned score) 
 	v.setCenter(float(SCREEN_WIDTH) / 2, float(SCREEN_HEIGHT) / 2);
 	w.setView(v);
 	display(w);
-	Sleep(5000);
+	Sleep(3000);
 }
 //==================================================================================
 

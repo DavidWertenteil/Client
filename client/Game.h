@@ -1,6 +1,9 @@
 #pragma once
 #include "Utilities.h"
+#include <exception>
 #include <map>
+#include "ScoreList.h"
+
 
 //--------------------------------------------------------------------------
 class Score :public sf::Text {
@@ -21,8 +24,10 @@ public:
 	void display(sf::RenderWindow &w);
 	sf::Vector2f setView(sf::RenderWindow &w)const;
 
+	void connectToServer();
+
 private:
-	void updateMove(float);
+	void updateMove(float, float &);
 	void receiveChanges();
 	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet);
 	//===========================
@@ -35,6 +40,7 @@ private:
 	sf::View& m_view;
 	sf::View m_minimap;
 	sf::RectangleShape m_minimapBackground;
+	ScoreList m_scoreList;
 
 	bool m_receive = true;
 };
