@@ -50,7 +50,7 @@ Game::Game(const std::string& ip, Uint32 image_id, sf::View& view, const sf::Str
 	m_me->editText(Fonts::instance()[SETTINGS], name);
 
 	m_minimap.setViewport(sf::FloatRect{ 0,0,0.15f, 0.2f });
-	m_minimapBackground.setFillColor(sf::Color(105, 105, 105, 150));
+	m_minimapBackground.setFillColor(sf::Color(105, 105, 105, 100));
 }
 //--------------------------------------------------------------------------
 void Game::connectToServer(const std::string& ip)
@@ -64,7 +64,7 @@ void Game::receive()
 	sf::Packet packet;
 	std::pair <Uint32, sf::Vector2f> temp;
 	Uint32 image;
-	sf::String name, s = "asd";
+	sf::String name;
 	float radius;
 
 	m_socket.setBlocking(true);//**********************************
@@ -273,8 +273,8 @@ void Game::display(sf::RenderWindow &w)
 	w.draw(m_me->getName());
 
 	w.setView(m_minimap);
-	w.draw(m_minimapBackground);
 	draw(w);
+	w.draw(m_minimapBackground);
 	//------------------- πιχεγ --------------------
 	m_view.setCenter(float(SCREEN_WIDTH / 2), float(SCREEN_HEIGHT / 2));
 	w.setView(m_view);

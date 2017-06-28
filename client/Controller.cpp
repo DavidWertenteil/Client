@@ -59,7 +59,7 @@ Controller::Controller() :m_Menus() {
 ************************************************************************/
 //=======================================================================
 void menuWindow(sf::RenderWindow& window) {
-	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io");// , sf::Style::None);
+	window.create(sf::VideoMode{ unsigned(SCREEN_WIDTH), unsigned(SCREEN_HEIGHT) }, "Agar.io", sf::Style::None);
 }
 //========================= run =====================================
 void Controller::run() {
@@ -119,7 +119,7 @@ void Start::selected(sf::RenderWindow& window, sf::Event& ev) {
 	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
 
 	load(window);//
-	Game game{m_ip, m_settings.getSelectedImage()  ,view ,m_settings.getName() };
+	Game game{ m_ip, m_settings.getSelectedImage()  ,view ,m_settings.getName() };
 	gameOver(window, view, game.play(window));// display score screen
 
 	 //	m_Menus.restartMenu();
