@@ -148,7 +148,7 @@ void Game::updateMove(float speed, float &lastMove)
 	if (m_me->legalMove(speed))
 	{
 		std::vector<Uint32> deleted;
-		m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get());
+		m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
 
 		if (!m_me->getLive())
 			deleted.push_back(m_me->getId()); // אם מתתי
@@ -196,15 +196,16 @@ void Game::receiveChanges()
 			{
 				m_players[temp.first]->setPosition(temp.second);
 				m_players[temp.first]->setCenter();
-				m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get());
+				m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
 			}
 
 			else // שחקן חדש
-			try
+			//try
 			{
-				addPlayer(temp, packet);
+				if (m_lastDead != temp.first)
+					addPlayer(temp, packet);
 			}
-			catch (...)
+			//catch (...)
 			{
 
 			}
@@ -292,13 +293,13 @@ void Game::display(sf::RenderWindow &w)
 //****************************    PLAYER FUNCTION   ***********************************
 //*************************************************************************************
 // מחזיר שקר אם מתתי
-void Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
+void Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
 {
-	checkPlayers(deleted, players, me);
+	checkPlayers(deleted, players, me, lastDead);
 	checkFoodAndBomb(deleted, objectsOnBoard);
 }
 //--------------------------------------------------------------------------
-void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me)
+void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
 {
 	for (auto &player : players)
 	{
@@ -311,6 +312,9 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				newRadius(player.second.get());
 				player.second->setLive(false); //מחיקה, השחקן יודע שהוא מת
 				deleted.push_back(player.first);
+
+				lastDead = player.second->getId();
+				std::cout<< player.second->getId()<<'\n';
 			}
 			else
 				m_live = false; // אם השחקן שקרא לפונקציה מת
@@ -329,6 +333,9 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 			{
 				m_live = false; //השחקן שמולי מת
 				me->newRadius(this);
+
+				lastDead = getId();
+				std::cout << getId() << '\n';
 			}
 	}
 

@@ -78,8 +78,8 @@ public:
 	Player(const Player& p) :Player(p.getId(), p.getCenter(), p.getScore()) {}
 	
 
-	void collision(std::vector<Uint32> &, Maps &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *);
-	void checkPlayers(std::vector<Uint32> &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *);
+	void collision(std::vector<Uint32> &, Maps &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *, Uint32 &lastDead);
+	void checkPlayers(std::vector<Uint32> &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *, Uint32 &lastDead);
 	void checkFoodAndBomb(std::vector<Uint32> &, Maps &);
 	bool circlesCollide(const Circle* p) const;
 

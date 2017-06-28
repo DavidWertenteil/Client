@@ -43,6 +43,8 @@ private:
 	ScoreList m_scoreList;
 
 	bool m_receive = true;
+
+	Uint32 m_lastDead = 0;
 };
 
 void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players);
