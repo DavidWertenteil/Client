@@ -108,7 +108,6 @@ class MyPlayer :public Player
 public:
 	MyPlayer();
 	MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font,const sf::Vector2f& position,const sf::String& name);
-	MyPlayer(const MyPlayer &p) :MyPlayer(p.getId(), *p.getTexture(), *p.getName().getFont(), p.getPosition(), p.getString()) { setRadius(p.getRadius()); setScore(p.getScore()); setCenter(p.getPosition() + Vector2f{getRadius(), getRadius()}); }
 
 	bool legalMove(float speed);
 	
