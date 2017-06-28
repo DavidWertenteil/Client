@@ -46,11 +46,12 @@ int main() {
 /*****************************************************************************************
 				basic Controller functions
 **********************************************************************************************/
+std::string m_ip;
+
 //===================== constructor ===================================
 Controller::Controller() :m_Menus() {
-	//m_music.openFromFile("sounds/menu.ogg");
-	//m_music.setLoop(true);
-	//m_music.play();
+	std::cout << "enter server's IP: \n";
+	std::cin >> m_ip;
 }
 /************************************************************************
 					Controller running functions
@@ -118,7 +119,7 @@ void Start::selected(sf::RenderWindow& window, sf::Event& ev) {
 	sf::View view(sf::FloatRect{ 0, 0, float(SCREEN_WIDTH),float(SCREEN_HEIGHT) });
 
 	load(window);//
-	Game game{ m_settings.getSelectedImage()  ,view ,m_settings.getName() };
+	Game game{m_ip, m_settings.getSelectedImage()  ,view ,m_settings.getName() };
 	gameOver(window, view, game.play(window));// display score screen
 
 	 //	m_Menus.restartMenu();

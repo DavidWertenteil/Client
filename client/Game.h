@@ -16,7 +16,7 @@ public:
 class Game
 {
 public:
-	Game(Uint32 image, sf::View&, const sf::String &name = "no name");
+	Game(const std::string&, Uint32, sf::View&, const sf::String &);
 	void receive();
 	unsigned play(sf::RenderWindow &w);
 
@@ -24,7 +24,7 @@ public:
 	void display(sf::RenderWindow &w);
 	sf::Vector2f setView(sf::RenderWindow &w)const;
 
-	void connectToServer();
+	void connectToServer(const std::string&);
 
 private:
 	void updateMove(float, float &);

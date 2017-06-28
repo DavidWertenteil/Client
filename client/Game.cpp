@@ -4,7 +4,7 @@
 #include <vector>
 #include <Windows.h>
 #include <string>
-
+#define PORT 5555
 
 //====================================================================================
 //================================  Score  c-tor =====================================
@@ -16,7 +16,7 @@ Score::Score() :sf::Text("score: " + std::to_string(NEW_PLAYER), Fonts::instance
 //====================================================================================
 //================================ CONSTRUCTOR =======================================
 //====================================================================================
-Game::Game(Uint32 image_id, sf::View& view, const sf::String &name)
+Game::Game(const std::string& ip, Uint32 image_id, sf::View& view, const sf::String &name)
 	:m_me(std::make_unique<MyPlayer>()),
 	m_background(Images::instance().getImage(BACKGROUND)),
 	m_view(view),
@@ -29,7 +29,7 @@ Game::Game(Uint32 image_id, sf::View& view, const sf::String &name)
 	{
 		try
 		{
-			connectToServer();
+			connectToServer(ip);
 		}
 		catch (std::exception &ex)
 		{
@@ -53,9 +53,9 @@ Game::Game(Uint32 image_id, sf::View& view, const sf::String &name)
 	m_minimapBackground.setFillColor(sf::Color(105, 105, 105, 150));
 }
 //--------------------------------------------------------------------------
-void Game::connectToServer()
+void Game::connectToServer(const std::string& ip)
 {
-	if (m_socket.connect(sf::IpAddress::LocalHost, 5555) != sf::TcpSocket::Done)
+	if (m_socket.connect(ip, PORT) != sf::TcpSocket::Done)
 		throw std::exception{ "no connecting, please wait" };
 }
 //--------------------------------------------------------------------------
