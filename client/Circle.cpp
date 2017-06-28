@@ -116,7 +116,7 @@ bool Player::circlesCollide(const Circle* p) const
 bool MyPlayer::legalMove(float speed)
 {
 	sf::Vector2f moveTo{ 0,0 };
-
+	
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && getCenter().y - getRadius() - speed*MOVE >= 0)
 		moveTo += { 0, -speed*MOVE };
 

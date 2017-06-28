@@ -144,17 +144,25 @@ void Game::updateMove(float speed, float &lastMove)
 {
 	sf::Packet packet;
 	packet.clear();
+	std::unique_ptr<MyPlayer> temp = std::make_unique<MyPlayer>(*m_me.get());
 
-	if (m_me->legalMove(speed))
+	//if (m_me->legalMove(speed))
+	if (temp->legalMove(speed))
 	{
 		std::vector<Uint32> deleted;
-		m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
+		//m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
+		temp->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
 
-		if (!m_me->getLive())
+		m_me->setRadius(temp->getRadius());
+		m_me->setLive(temp->getLive());
+		m_me->setScore(temp->getScore());
+
+		//if (!m_me->getLive())
+		if (!temp->getLive())
 			deleted.push_back(m_me->getId()); // אם מתתי
 
 		//שליחת אובייקט זמני
-		packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
+		packet << m_me->getId() << temp->getRadius() << temp->getPosition() << deleted;
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
@@ -179,10 +187,10 @@ void Game::receiveChanges()
 
 	while (!packet.endOfPacket())
 	{
+		std::vector<Uint32> del;
 		std::pair<Uint32, sf::Vector2f> temp;
 		if (!(packet >> temp))
 			continue;
-		std::vector<Uint32> del;
 
 		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
 			m_objectsOnBoard.insert(temp);
@@ -190,7 +198,11 @@ void Game::receiveChanges()
 		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
 		{
 			if (temp.first == m_me->getId())// השחקן שלי
+			{
 				m_receive = true;
+				//m_me->setPosition(temp.second);
+				m_me->move(temp.second.x - m_me->getPosition().x, temp.second.y - m_me->getPosition().y);
+			}
 
 			else if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
 			{
@@ -209,8 +221,10 @@ void Game::receiveChanges()
 			{
 
 			}
+
 		}
 	}
+
 
 	deleteDeadPlayer(m_players);
 }
