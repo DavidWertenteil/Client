@@ -216,7 +216,8 @@ void Game::receiveChanges()
 //------------------------------------------------------------------------------------
 void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet)
 {
-	Uint32 image = 0;
+	//Uint32 image = 0;
+	Uint32 image;
 	sf::String name;
 	packet >> image >> name;
 	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, Images::instance()[image], Fonts::instance()[SETTINGS], NEW_PLAYER, temp.second, name));
