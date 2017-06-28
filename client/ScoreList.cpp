@@ -17,7 +17,7 @@ ScoreList::ScoreList()
 void ScoreList::display(sf::RenderWindow &w, const std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> &players, const std::unique_ptr<MyPlayer> &me)
 {
 	int i = 1;
-	sf::String temp = "best players:\n";
+	sf::String temp = "Best players:\n";
 	m_scoreList.clear();
 
 	for (auto it = players.begin(); it != players.end(); it++)
