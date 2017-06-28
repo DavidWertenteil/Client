@@ -83,9 +83,12 @@ void Player::newRadius(Circle *c)
 		
 		if (dynamic_cast<MyPlayer*>(this))
 			Sound::instance().play(BOMB);
+
 	}
 
 	m_name.setCharacterSize(unsigned(getRadius() / 2));
+	m_name.setOrigin(m_name.getGlobalBounds().width / 2, m_name.getGlobalBounds().height / 2);
+	m_name.setPosition(getCenter());
 }
 //-----------------------------------------------------
 void Player::move(float x, float y)

@@ -155,6 +155,7 @@ void Game::updateMove(float speed, float &lastMove)
 
 		//שליחת אובייקט זמני
 		packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
+		//std::cout << m_me->getId() << " " <<m_me->getPosition().x << " " << m_me->getPosition().y << '\n';
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
