@@ -1,7 +1,7 @@
 #pragma once
 #include "Circle.h"
 
-bool cmp(unsigned n1, unsigned n2);
+bool cmp(unsigned n1, unsigned n2);//for the multymap
 
 class ScoreList
 {

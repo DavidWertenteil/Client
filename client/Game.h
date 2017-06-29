@@ -24,13 +24,13 @@ public:
 	void display(sf::RenderWindow &w);
 	sf::Vector2f setView(sf::RenderWindow &w)const;
 
-	void connectToServer(const std::string&);
-
 private:
+	void connectToServer(const std::string&);
 	void updateMove(float, float &);
 	void receiveChanges();
 	void addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet);
-	//===========================
+	//----------------------------
+
 	Maps m_objectsOnBoard;
 	std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> m_players;
 	sf::Sprite m_background;
@@ -41,9 +41,7 @@ private:
 	sf::View m_minimap;
 	sf::RectangleShape m_minimapBackground;
 	ScoreList m_scoreList;
-
 	bool m_receive = true;
-
 	Uint32 m_lastDead = 0;
 };
 

@@ -6,6 +6,7 @@ bool cmp(unsigned n1, unsigned n2)
 {
 	return n1 > n2;
 }
+
 //===========================================================================
 ScoreList::ScoreList()
 {

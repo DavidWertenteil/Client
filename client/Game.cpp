@@ -42,11 +42,11 @@ Game::Game(const std::string& ip, Uint32 image_id, sf::View& view, const sf::Str
 	}
 
 	sf::Packet packet;
-	packet << image_id << name; //שליחה לשרת של התמונה שלי
+	packet << image_id << name; //send my pic and name to the server
 	if (m_socket.send(packet) != sf::TcpSocket::Done)
 		std::cout << "no sending image\n";
 
-	receive();//קליטת מידע מהשרת
+	receive();//receive the board
 	m_me->editText(Fonts::instance()[SETTINGS], name);
 
 	m_minimap.setViewport(sf::FloatRect{ 0,0,0.15f, 0.2f });
@@ -74,7 +74,7 @@ void Game::receive()
 
 	if (status == sf::TcpSocket::Done)
 	{
-		while (!packet.endOfPacket())//קליטה של כל הדברים שעל הלוח
+		while (!packet.endOfPacket())//receive the board
 		{
 			packet >> temp;
 
@@ -89,19 +89,21 @@ void Game::receive()
 		}
 	}
 
-	m_players.erase(temp.first); //הורדת העיגול שלי מהשחקנים האחרים
-
-	m_me->setId(temp.first);//עדכון העיגול שלי
+	m_players.erase(temp.first); //delete my player from the other player
+    
+	//update my player
+	m_me->setId(temp.first);
 	m_me->setTexture(Images::instance()[image]);
 	m_me->setPosition(temp.second);
 	m_me->setCenter(temp.second + Vector2f{ NEW_PLAYER,NEW_PLAYER });
 
-	std::cout << std::string(name) << '\n';
+	//std::cout << std::string(name) << '\n';******************************
 }
 
 //====================================================================================
 //================================     PLAY     ======================================
 //====================================================================================
+//the main loop of the game
 unsigned Game::play(sf::RenderWindow &w)
 {
 	m_socket.setBlocking(false);
@@ -115,12 +117,13 @@ unsigned Game::play(sf::RenderWindow &w)
 		w.pollEvent(event);
 		auto speed = TimeClass::instance().RestartClock();
 		lastMove += TimeClass::instance().getTime();
-		//תזוזה של השחקן
-		if (m_receive) // אם הוא קלט את התזוזה הקודמת שלו
+		
+		//player move
+		if (m_receive) // if the player receive his last move
 			if (event.type == sf::Event::EventType::KeyPressed)
 				updateMove(speed, lastMove);
 
-		//קבלת מידע מהשרת
+		//receive changes from the server
 		receiveChanges();
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
@@ -140,6 +143,7 @@ unsigned Game::play(sf::RenderWindow &w)
 //====================================================================================
 //===========================      UPDATE MOVE       =================================
 //====================================================================================
+// my move
 void Game::updateMove(float speed, float &lastMove)
 {
 	sf::Packet packet;
@@ -147,15 +151,13 @@ void Game::updateMove(float speed, float &lastMove)
 
 	if (m_me->legalMove(speed))
 	{
-		std::vector<Uint32> deleted;
+		std::vector<Uint32> deleted; //all the object that delete in this move
 		m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
 
 		if (!m_me->getLive())
-			deleted.push_back(m_me->getId()); // אם מתתי
+			deleted.push_back(m_me->getId()); // if i dead, update the server
 
-		//שליחת אובייקט זמני
 		packet << m_me->getId() << m_me->getRadius() << m_me->getPosition() << deleted;
-		//std::cout << m_me->getId() << " " <<m_me->getPosition().x << " " << m_me->getPosition().y << '\n';
 
 		if (m_socket.send(packet) != sf::TcpSocket::Done)
 			std::cout << "no sending data\n";
@@ -164,7 +166,7 @@ void Game::updateMove(float speed, float &lastMove)
 			Sleep(100);
 
 		m_receive = false;
-		lastMove = 0;
+		lastMove = 0; //the time from the last move is 0
 	}
 }
 
@@ -185,22 +187,22 @@ void Game::receiveChanges()
 			continue;
 		std::vector<Uint32> del;
 
-		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) // אוכל או פצצות חדשות
+		if (temp.first >= FOOD_LOWER && temp.first <= BOMBS_UPPER) //new foods or bombs
 			m_objectsOnBoard.insert(temp);
 
-		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// שחקן
+		else if (temp.first >= PLAYER_LOWER && temp.first <= PLAYER_UPPER)// player id
 		{
-			if (temp.first == m_me->getId())// השחקן שלי
+			if (temp.first == m_me->getId())// if it's my player
 				m_receive = true;
 
-			else if (m_players.find(temp.first) != m_players.end())// תזוזה של שחקן (שחקן קיים..)י
+			else if (m_players.find(temp.first) != m_players.end())// if it's player's move
 			{
 				m_players[temp.first]->setPosition(temp.second);
 				m_players[temp.first]->setCenter();
 				m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
 			}
 
-			else // שחקן חדש
+			else //if it's a new player
 			//try
 			{
 				if (m_lastDead != temp.first)
@@ -218,7 +220,6 @@ void Game::receiveChanges()
 //------------------------------------------------------------------------------------
 void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &packet)
 {
-	//Uint32 image = 0;
 	Uint32 image;
 	sf::String name;
 	packet >> image >> name;
@@ -251,8 +252,9 @@ sf::Vector2f Game::setView(sf::RenderWindow &w) const
 
 	return pos;
 }
-//=============================================================================================
-void Game::draw(sf::RenderWindow &w) const {
+//--------------------------------------------------------------------------
+void Game::draw(sf::RenderWindow &w) const 
+{
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
 
@@ -261,13 +263,15 @@ void Game::draw(sf::RenderWindow &w) const {
 		w.draw(*x.second.get());
 		w.draw(x.second->getName());
 	}
-	w.draw(*m_me.get());
+
+	w.draw(*m_me.get());//******************** why the name in another function?
 }
 //--------------------------------------------------------------------------
 void Game::display(sf::RenderWindow &w)
 {
 	w.clear();
-	//-------------------- רקע ---------------------
+	
+	//-------------------- background ---------------------
 	auto pos = setView(w);
 	m_view.setCenter(pos);
 	w.setView(m_view);
@@ -278,22 +282,22 @@ void Game::display(sf::RenderWindow &w)
 	w.setView(m_minimap);
 	draw(w);
 	w.draw(m_minimapBackground);
-	//------------------- ניקוד --------------------
+	
+	//---------------------- score ------------------------
 	m_view.setCenter(float(SCREEN_WIDTH / 2), float(SCREEN_HEIGHT / 2));
 	w.setView(m_view);
 	w.draw(m_score);
-	//--------------------- הניקוד הכי גבוה --------------------
+	
+	//--------------------- list score --------------------
 	m_scoreList.display(w, m_players, m_me);
 
 	w.display();
-
 }
 
 
 //*************************************************************************************
 //****************************    PLAYER FUNCTION   ***********************************
 //*************************************************************************************
-// מחזיר שקר אם מתתי
 void Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
 {
 	checkPlayers(deleted, players, me, lastDead);
@@ -308,35 +312,33 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 			continue;
 
 		if (circlesCollide(player.second.get()))
-			if (getRadius() > player.second->getRadius()) //אם היתה התנגשות בין שניים אחרים והאחר מת
+			if (getRadius() > player.second->getRadius()) //if two circles collided and the other player dead
 			{
 				newRadius(player.second.get());
-				player.second->setLive(false); //מחיקה, השחקן יודע שהוא מת
+				player.second->setLive(false);
 				deleted.push_back(player.first);
 
-				lastDead = player.second->getId();
-				std::cout<< player.second->getId()<<'\n';
+				lastDead = player.second->getId(); //***************************************
 			}
 			else
-				m_live = false; // אם השחקן שקרא לפונקציה מת
+				m_live = false; //if the player thar called this function is dead
 	}
 
 
-	if (dynamic_cast<OtherPlayers*>(this)) //בדיקה של שחקן נוכחי מול השחקן שלי
+	if (dynamic_cast<OtherPlayers*>(this)) //check colliding with my player
 	{
-		if (circlesCollide(me))
-			if (getRadius() > me->getRadius())
+		if (circlesCollide(me)) 
+			if (getRadius() > me->getRadius()) //if my player is dead
 			{
 				me->setLive(false);
 				newRadius(me);
 			}
 			else
 			{
-				m_live = false; //השחקן שמולי מת
+				m_live = false; //if the player thar called this function is dead
 				me->newRadius(this);
 
-				lastDead = getId();
-				std::cout << getId() << '\n';
+				lastDead = getId();//**************************************************
 			}
 	}
 
@@ -345,9 +347,11 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 //--------------------------------------------------------------------------
 void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard)
 {
+	//***************************************************************************
 	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
+	//***************************************************************************
 
-	for (auto it : check) //מחיקה של אוכל ופצצות והוספה לוקטור
+	for (auto it : check) 
 		if (circlesCollide(objectsOnBoard[it].get()))
 		{
 			newRadius(objectsOnBoard[it].get());

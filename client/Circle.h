@@ -60,7 +60,7 @@ public:
 
 	Uint32 getId() const { return m_id; }
 	const Vector2f& getCenter() const { return m_center; }
-	void setCenter(Vector2f center) { m_center = center; }
+	void setCenter(const Vector2f &center) { m_center = center; }
 	void setCenter() { m_center = getPosition() + Vector2f{ getRadius(), getRadius() }; }
 
 	void virtual f() = 0;
@@ -93,7 +93,7 @@ public:
 	bool getLive() const { return m_live; }
 	void setLive(bool l) { m_live = l; }
 
-	void editText(const sf::Font &font, const sf::String name);
+	void editText(const sf::Font &font, const sf::String &name);
 	sf::Text getName() const { return m_name; }
 	sf::String getString() const { return m_name.getString(); }
 
@@ -107,7 +107,6 @@ class MyPlayer :public Player
 {
 public:
 	MyPlayer();
-	MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font,const sf::Vector2f& position,const sf::String& name);
 
 	bool legalMove(float speed);
 	

@@ -4,7 +4,7 @@
 //====================================================================================
 //===========================      CONSTRACTORS      =================================
 //====================================================================================
-Player::Player(Uint32 id, Vector2f c, unsigned s) :Circle(id, c) 
+Player::Player(Uint32 id, Vector2f c, unsigned s) :Circle(id, c)
 {
 	setPointCount(100);
 	setOutlineThickness(4);
@@ -13,16 +13,6 @@ Player::Player(Uint32 id, Vector2f c, unsigned s) :Circle(id, c)
 	m_score = unsigned(getRadius());
 }
 //======================================================================================
-MyPlayer::MyPlayer(Uint32 id, const sf::Texture &image, const sf::Font &font, const sf::Vector2f& position, const sf::String& name)
-	:Player(id)
-{
-	setRadius(NEW_PLAYER);
-	setCenter(position + Vector2f{ NEW_PLAYER ,NEW_PLAYER });
-	setPosition(position);
-	Circle::setTexture(&image);
-	editText(font, name);
-}
-//--------------------------------------------------------------------------------------
 MyPlayer::MyPlayer()
 {
 	setOutlineThickness(4);
@@ -50,7 +40,7 @@ Food::Food(Uint32 id, sf::Vector2f position, const sf::Texture& t) :FoodAndBomb(
 	setRadius(FOOD_RADIUS);
 	setCenter(position);
 	setOrigin(FOOD_RADIUS, FOOD_RADIUS);
-	setFillColor(sf::Color(rand() % 155 + 150, rand() % 155 + 150, rand() % 155 + 150));//?????????????????
+	setFillColor(sf::Color(rand() % 155 + 150, rand() % 155 + 150, rand() % 155 + 150));
 	setTexture(&t);
 }
 //======================================================================================
@@ -72,7 +62,7 @@ void Player::newRadius(Circle *c)
 	{
 		setRadius(getRadius() + c->getRadius() / 10);
 		setScore(unsigned(getRadius()));
-		
+
 		if (dynamic_cast<MyPlayer*>(this))
 			Sound::instance().play(FOOD);
 	}
@@ -137,7 +127,7 @@ bool MyPlayer::legalMove(float speed)
 	return moveTo != sf::Vector2f{ 0,0 };
 }
 //--------------------------------------------------------------------------------------
-void Player::editText(const sf::Font &font, const sf::String name)
+void Player::editText(const sf::Font &font, const sf::String &name)
 {
 	m_name.setFont(font);
 	m_name.setCharacterSize(unsigned(getRadius() / 2));
