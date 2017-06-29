@@ -121,8 +121,6 @@ void Start::selected(sf::RenderWindow& window, sf::Event& ev) {
 	load(window);//
 	Game game{ m_ip, m_settings.getSelectedImage()  ,view ,m_settings.getName() };
 	gameOver(window, view, game.play(window));// display score screen
-
-	 //	m_Menus.restartMenu();
 }
 //================================================================================
 //===================================================================================

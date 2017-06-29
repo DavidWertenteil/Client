@@ -67,12 +67,7 @@ void Game::receive()
 	sf::String name;
 	float radius;
 
-	m_socket.setBlocking(true);//**********************************
-	Sleep(100);//*********************************
-
-	auto status = m_socket.receive(packet);
-
-	if (status == sf::TcpSocket::Done)
+	if (m_socket.receive(packet) == sf::TcpSocket::Done)
 	{
 		while (!packet.endOfPacket())//receive the board
 		{
@@ -90,14 +85,12 @@ void Game::receive()
 	}
 
 	m_players.erase(temp.first); //delete my player from the other player
-    
+
 	//update my player
 	m_me->setId(temp.first);
 	m_me->setTexture(Images::instance()[image]);
 	m_me->setPosition(temp.second);
 	m_me->setCenter(temp.second + Vector2f{ NEW_PLAYER,NEW_PLAYER });
-
-	//std::cout << std::string(name) << '\n';******************************
 }
 
 //====================================================================================
@@ -117,7 +110,7 @@ unsigned Game::play(sf::RenderWindow &w)
 		w.pollEvent(event);
 		auto speed = TimeClass::instance().RestartClock();
 		lastMove += TimeClass::instance().getTime();
-		
+
 		//player move
 		if (m_receive) // if the player receive his last move
 			if (event.type == sf::Event::EventType::KeyPressed)
@@ -202,16 +195,8 @@ void Game::receiveChanges()
 				m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
 			}
 
-			else //if it's a new player
-			//try
-			{
-				if (m_lastDead != temp.first)
-					addPlayer(temp, packet);
-			}
-			//catch (...)
-			{
-
-			}
+			else if (m_lastDead != temp.first)//if it's a new player
+				addPlayer(temp, packet);
 		}
 	}
 
@@ -253,7 +238,7 @@ sf::Vector2f Game::setView(sf::RenderWindow &w) const
 	return pos;
 }
 //--------------------------------------------------------------------------
-void Game::draw(sf::RenderWindow &w) const 
+void Game::draw(sf::RenderWindow &w) const
 {
 	for (auto &x : m_objectsOnBoard)
 		w.draw(*x.second.get());
@@ -264,13 +249,13 @@ void Game::draw(sf::RenderWindow &w) const
 		w.draw(x.second->getName());
 	}
 
-	w.draw(*m_me.get());//******************** why the name in another function?
+	w.draw(*m_me.get());
 }
 //--------------------------------------------------------------------------
 void Game::display(sf::RenderWindow &w)
 {
 	w.clear();
-	
+
 	//-------------------- background ---------------------
 	auto pos = setView(w);
 	m_view.setCenter(pos);
@@ -282,12 +267,12 @@ void Game::display(sf::RenderWindow &w)
 	w.setView(m_minimap);
 	draw(w);
 	w.draw(m_minimapBackground);
-	
+
 	//---------------------- score ------------------------
 	m_view.setCenter(float(SCREEN_WIDTH / 2), float(SCREEN_HEIGHT / 2));
 	w.setView(m_view);
 	w.draw(m_score);
-	
+
 	//--------------------- list score --------------------
 	m_scoreList.display(w, m_players, m_me);
 
@@ -318,7 +303,7 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				player.second->setLive(false);
 				deleted.push_back(player.first);
 
-				lastDead = player.second->getId(); //***************************************
+				lastDead = player.second->getId(); 
 			}
 			else
 				m_live = false; //if the player thar called this function is dead
@@ -327,7 +312,7 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 
 	if (dynamic_cast<OtherPlayers*>(this)) //check colliding with my player
 	{
-		if (circlesCollide(me)) 
+		if (circlesCollide(me))
 			if (getRadius() > me->getRadius()) //if my player is dead
 			{
 				me->setLive(false);
@@ -338,7 +323,7 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				m_live = false; //if the player thar called this function is dead
 				me->newRadius(this);
 
-				lastDead = getId();//**************************************************
+				lastDead = getId();
 			}
 	}
 
@@ -347,11 +332,9 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 //--------------------------------------------------------------------------
 void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard)
 {
-	//***************************************************************************
 	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
-	//***************************************************************************
 
-	for (auto it : check) 
+	for (auto it : check)
 		if (circlesCollide(objectsOnBoard[it].get()))
 		{
 			newRadius(objectsOnBoard[it].get());
