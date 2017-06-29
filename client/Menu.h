@@ -19,7 +19,7 @@ class Button :public sf::Text
 {
 public:
 	Button(const sf::Font& font, const sf::String& str, unsigned p = 0)
-		:sf::Text::Text(str, font, FONT_SIZE), m_place(p) {}
+		:sf::Text::Text(str, font, FONT_SIZE) {}
 	virtual ~Button() = 0;
 
 
@@ -32,13 +32,11 @@ public:
 	virtual bool pressed(const sf::Vector2f&) = 0;
 	virtual bool getPressed()const { return m_pressed; }
 	virtual void setPressed(bool p) { m_pressed = p; }
-	virtual unsigned getPlace()const { return m_place; }
 
 	virtual void selected(sf::RenderWindow&, sf::Event&) = 0;
 protected:
 	bool m_switch{ false };    //if mouse on button switch display
 	bool m_pressed{ false };
-	unsigned m_place; //its place(cell) in the array
 };
 //======================================================================================
 //                           class Start
@@ -66,7 +64,7 @@ private:
 //======================================================================================
 class Settings : public Button {
 public:
-	Settings(SettingsScreen& set, const sf::String& str = "Settings", unsigned p = 1) :Button(Fonts::instance()[MENU], str, p), m_settings(set) {}
+	Settings(SettingsScreen& set, const sf::String& str = "Settings") :Button(Fonts::instance()[MENU], str), m_settings(set) {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
 	void selected(sf::RenderWindow& w, sf::Event& e)override { m_settings.selected(w, e); }
 private:
@@ -77,7 +75,7 @@ private:
 //======================================================================================
 class Help : public Button {
 public:
-	Help(const sf::String& str = "Help", unsigned p = 2) :Button(Fonts::instance()[MENU], str, p), m_help(Fonts::instance()[fonts::HELP_INFO]) {}
+	Help(const sf::String& str = "Help") :Button(Fonts::instance()[MENU], str), m_help(Fonts::instance()[fonts::HELP_INFO]) {}
 	bool pressed(const sf::Vector2f& location)override { return(m_pressed = check(location)); }
 	void selected(sf::RenderWindow& w, sf::Event&)override { m_help.display(w); }
 	void setWidth(float width) { m_help.setWidth(width); }
@@ -89,7 +87,7 @@ private:
 //======================================================================================
 class Close : public Button {
 public:
-	Close(const sf::String& str = "Close", unsigned p = 3) :Button(Fonts::instance()[MENU], str), m_logo(Fonts::instance()[fonts::LOGO]) {}
+	Close(const sf::String& str = "Close") :Button(Fonts::instance()[MENU], str), m_logo(Fonts::instance()[fonts::LOGO]) {}
 	bool pressed(const sf::Vector2f& location)override;
 	void display(sf::RenderWindow& window)override;
 	void selected(sf::RenderWindow& w, sf::Event&)override { m_logo.display(w); }

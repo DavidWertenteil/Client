@@ -90,5 +90,6 @@
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram2.cd" />
     <None Include="ClassDiagram12.cd" />
+    <None Include="ClassDiagram13.cd" />
   </ItemGroup>
 </Project>
