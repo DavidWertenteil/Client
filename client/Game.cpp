@@ -152,7 +152,8 @@ void Game::updateMove(float speed, float &lastMove)
 	if (m_me->legalMove(speed))
 	{
 		std::vector<Uint32> deleted; //all the object that delete in this move
-		m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
+		//m_me->collision(deleted, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
+		m_me->collision(deleted, *this);
 
 		if (!m_me->getLive())
 			deleted.push_back(m_me->getId()); // if i dead, update the server
@@ -199,7 +200,8 @@ void Game::receiveChanges()
 			{
 				m_players[temp.first]->setPosition(temp.second);
 				m_players[temp.first]->setCenter();
-				m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
+				//m_players[temp.first]->collision(del, m_objectsOnBoard, m_players, m_me.get(), m_lastDead);
+				m_players[temp.first]->collision(del,*this);
 			}
 
 			else //if it's a new player
@@ -226,10 +228,10 @@ void Game::addPlayer(const std::pair<Uint32, sf::Vector2f> &temp, sf::Packet &pa
 	m_players.emplace(temp.first, std::make_unique<OtherPlayers>(temp.first, Images::instance()[image], Fonts::instance()[SETTINGS], NEW_PLAYER, temp.second, name));
 }
 //------------------------------------------------------------------------------------
-void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players)
+void Game::deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players)
 {
-	for (auto it = players.begin(); it != players.end();)
-		(it->second->getLive()) ? it++ : it = players.erase(it);
+	for (auto it = m_players.begin(); it != m_players.end();)
+		(it->second->getLive()) ? it++ : it = m_players.erase(it);
 }
 //====================================================================================
 //===========================          PRINT         =================================
@@ -298,15 +300,17 @@ void Game::display(sf::RenderWindow &w)
 //*************************************************************************************
 //****************************    PLAYER FUNCTION   ***********************************
 //*************************************************************************************
-void Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
+//void Player::collision(std::vector<Uint32> &deleted, Maps &objectsOnBoard, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
+void Player::collision(std::vector<Uint32> &deleted, Game &game)
 {
-	checkPlayers(deleted, players, me, lastDead);
-	checkFoodAndBomb(deleted, objectsOnBoard);
+	checkPlayers(deleted, game);
+	checkFoodAndBomb(deleted, game);
 }
 //--------------------------------------------------------------------------
-void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
+//void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players, Player *me, Uint32 &lastDead)
+void Player::checkPlayers(std::vector<Uint32> &deleted, Game &game)
 {
-	for (auto &player : players)
+	for (auto &player : game.getPlayers())
 	{
 		if (player.second->getId() == getId())
 			continue;
@@ -318,7 +322,7 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 				player.second->setLive(false);
 				deleted.push_back(player.first);
 
-				lastDead = player.second->getId(); //***************************************
+				game.setLastDead(player.second->getId()); //***************************************
 			}
 			else
 				m_live = false; //if the player thar called this function is dead
@@ -327,35 +331,36 @@ void Player::checkPlayers(std::vector<Uint32> &deleted, std::unordered_map<Uint3
 
 	if (dynamic_cast<OtherPlayers*>(this)) //check colliding with my player
 	{
-		if (circlesCollide(me)) 
-			if (getRadius() > me->getRadius()) //if my player is dead
+		if (circlesCollide(game.getMe())) 
+			if (getRadius() > game.getMe()->getRadius()) //if my player is dead
 			{
-				me->setLive(false);
-				newRadius(me);
+				game.getMe()->setLive(false);
+				newRadius(game.getMe());
 			}
 			else
 			{
 				m_live = false; //if the player thar called this function is dead
-				me->newRadius(this);
+				game.getMe()->newRadius(this);
 
-				lastDead = getId();//**************************************************
+				game.setLastDead(getId());//**************************************************
 			}
 	}
 
-	deleteDeadPlayer(players);
+	game.deleteDeadPlayer(game.getPlayers());
 }
 //--------------------------------------------------------------------------
-void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard)
+//void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Maps &objectsOnBoard)
+void Player::checkFoodAndBomb(std::vector<Uint32> &deleted, Game &game)
 {
 	//***************************************************************************
-	std::set<Uint32> check = objectsOnBoard.colliding(getCenter(), getRadius());
+	std::set<Uint32> check = game.getObjectsOnBoard().colliding(getCenter(), getRadius());
 	//***************************************************************************
 
 	for (auto it : check) 
-		if (circlesCollide(objectsOnBoard[it].get()))
+		if (circlesCollide(game.getObjectsOnBoard()[it].get()))
 		{
-			newRadius(objectsOnBoard[it].get());
-			objectsOnBoard.eraseFromData(it);
+			newRadius(game.getObjectsOnBoard()[it].get());
+			game.eraseFromData(it);
 			deleted.push_back(it);
 		}
 

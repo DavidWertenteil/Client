@@ -28,6 +28,7 @@
 
 class Maps;
 class OtherPlayers;
+class Game;
 
 using sf::Uint32;
 using sf::CircleShape;
@@ -74,13 +75,17 @@ class Player :public Circle
 {
 public:
 	Player() = default;
-	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0); 
+	Player(Uint32 id, Vector2f c = Vector2f{}, unsigned s = 0);
 	Player(const Player& p) :Player(p.getId(), p.getCenter(), p.getScore()) {}
-	
 
-	void collision(std::vector<Uint32> &, Maps &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *, Uint32 &lastDead);
-	void checkPlayers(std::vector<Uint32> &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *, Uint32 &lastDead);
-	void checkFoodAndBomb(std::vector<Uint32> &, Maps &);
+
+	//void collision(std::vector<Uint32> &, Maps &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *, Uint32 &lastDead);
+	void collision(std::vector<Uint32> &deleted, Game &game);
+	//void checkPlayers(std::vector<Uint32> &, std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& , Player *, Uint32 &lastDead);
+	void checkPlayers(std::vector<Uint32> &deleted, Game &game);
+	//void checkFoodAndBomb(std::vector<Uint32> &, Maps &);
+	void checkFoodAndBomb(std::vector<Uint32> &, Game &);
+
 	bool circlesCollide(const Circle* p) const;
 
 	void newRadius(Circle *c);
@@ -109,17 +114,17 @@ public:
 	MyPlayer();
 
 	bool legalMove(float speed);
-	
+
 	void setId(Uint32 id) { m_id = id; }
 	void setTexture(const sf::Texture &image) { CircleShape::setTexture(&image); }
-	void f() override {} 
+	void f() override {}
 };
 //-------------------------------------
 class OtherPlayers :public Player
 {
 public:
 	OtherPlayers(const OtherPlayers& p) :Player(p) {}
-	OtherPlayers(Uint32 , const sf::Texture &, const sf::Font&,float , sf::Vector2f , const sf::String &);
+	OtherPlayers(Uint32, const sf::Texture &, const sf::Font&, float, sf::Vector2f, const sf::String &);
 
 	void f() override {}
 };

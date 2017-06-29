@@ -17,12 +17,23 @@ class Game
 {
 public:
 	Game(const std::string&, Uint32, sf::View&, const sf::String &);
+
 	void receive();
 	unsigned play(sf::RenderWindow &w);
 
 	void draw(sf::RenderWindow &w)const;
 	void display(sf::RenderWindow &w);
 	sf::Vector2f setView(sf::RenderWindow &w)const;
+
+	void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players);
+	void eraseFromData(Uint32 it) { m_objectsOnBoard.eraseFromData(it); }
+
+
+
+	Maps getObjectsOnBoard()const { return m_objectsOnBoard; }
+	std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>> getPlayers() const { return m_players; }
+	MyPlayer* getMe() const { return m_me.get(); }
+	void setLastDead(Uint32 x) { m_lastDead = x; }
 
 private:
 	void connectToServer(const std::string&);
@@ -45,4 +56,3 @@ private:
 	Uint32 m_lastDead = 0;
 };
 
-void deleteDeadPlayer(std::unordered_map<Uint32, std::unique_ptr<OtherPlayers>>& players);
