@@ -46,12 +46,12 @@ int main() {
 /*****************************************************************************************
 				basic Controller functions
 **********************************************************************************************/
-std::string m_ip;
-
 //===================== constructor ===================================
 Controller::Controller() :m_Menus() {
+	std::string ip;
 	std::cout << "enter server's IP: \n";
-	std::cin >> m_ip;
+	std::cin >> ip;
+	m_Menus[START_GAME]->setIP(ip);
 }
 /************************************************************************
 					Controller running functions

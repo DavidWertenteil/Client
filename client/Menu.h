@@ -32,6 +32,7 @@ public:
 	virtual bool pressed(const sf::Vector2f&) = 0;
 	virtual bool getPressed()const { return m_pressed; }
 	virtual void setPressed(bool p) { m_pressed = p; }
+	virtual void setIP(const std::string& ) {}
 
 	virtual void selected(sf::RenderWindow&, sf::Event&) = 0;
 protected:
@@ -52,12 +53,14 @@ public:
 	void load(sf::RenderWindow& w)const { m_load.display(w); }
 	void selected(sf::RenderWindow&, sf::Event&)override;
 	void gameOver(sf::RenderWindow& w, sf::View&v, unsigned s) { m_end.endLevelScreen(w, v, s); }
+	void setIP(const std::string& ip)override { m_ip = ip; }
 	SettingsScreen& settings() { return std::ref(m_settings); }
 
 private:
 	loading m_load;
 	EndLevel m_end;
 	SettingsScreen m_settings;
+	std::string m_ip;
 };
 //======================================================================================
 //                           class Settings
